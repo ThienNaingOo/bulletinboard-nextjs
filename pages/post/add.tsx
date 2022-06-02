@@ -22,6 +22,8 @@ function PostCreate() {
     const router = useRouter();
 
     useEffect(() => {
+        console.log(session);
+        
         setUserID(session?.user.id);
     })
 

@@ -109,13 +109,13 @@ function Post({ posts }) {
     const [postRow, setpostRow] = useState(posts);
 
     const csvLink = {
-        headers: Object.keys(posts[0]),
+        headers: posts.length > 0 ? Object.keys(posts[0]) : "",
         data: posts,
         filename: `post.csv`
     }
 
     const [emptyRows, setemptyRows] = useState(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - postRow.length) : 0);
-        
+
 
     useEffect(() => {
     })
@@ -210,7 +210,7 @@ function Post({ posts }) {
                         <CSVLink {...csvLink}>Download</CSVLink>
                     </div>
                 </div>
-                <TableContainer component={Paper}>
+                {posts.length > 0 ? <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} aria-label="custom pagination table">
                         <TableHead>
                             <TableRow>
@@ -282,9 +282,11 @@ function Post({ posts }) {
                         </TableFooter>
                     </Table>
                 </TableContainer>
+                    : <h1 className='text-warning align-self-center my-5'>There is no Post at this time.</h1>}
+
             </div>
             <Snackbar open={open} autoHideDuration={6000}>
-                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
                     successfully deleted
                 </Alert>
             </Snackbar>
@@ -297,7 +299,7 @@ export const getServerSideProps = async () => {
     const allpost = await Posts.find({ status: 1 }).populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' }).sort({ created_at: -1 })
     return {
         props: {
-            posts: JSON.parse(JSON.stringify(allpost))
+            posts: allpost.length > 0 ? JSON.parse(JSON.stringify(allpost)) : []
         }
     }
 }

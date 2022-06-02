@@ -43,13 +43,12 @@ export default NextAuth({
       return baseUrl;
     },
     session: async ({ session, user, token }: any) => {
-
       if (session?.user) {
-        session.user.id = token.sub;
         await connectMongo();
         try {
           const user = await Users.findOne({ _id: token.sub })
-          session.user.type = user.type
+          session.user.id = user._id;
+          session.user.type = user.type;
         } catch (error) {
         }
       }
