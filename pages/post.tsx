@@ -1,7 +1,7 @@
 import Header from './components/Header'
 import connectMongo from '../utils/dbConnect'
 import Posts from '../models/post.model'
-import React, { useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { format } from 'date-fns';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -11,7 +11,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableFooter from '@mui/material/TableFooter';
 import TablePagination from '@mui/material/TablePagination';
-import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
@@ -25,6 +24,9 @@ import { useSession } from 'next-auth/react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import SearchBar from "material-ui-search-bar";
+import { Button, Box } from "@mui/material";
+import { styled } from '@mui/material/styles';
+import { Dialog, DialogActions, DialogTitle } from '@mui/material'
 
 interface TablePaginationActionsProps {
     count: number;
@@ -35,6 +37,10 @@ interface TablePaginationActionsProps {
         newPage: number,
     ) => void;
 }
+
+const Input = styled('input')({
+    display: 'none',
+});
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -106,7 +112,12 @@ function Post({ posts }) {
     const router = useRouter();
     const { data: session }: any = useSession();
     const [open, setOpen] = useState(false);
+    const [success, setsuccess] = useState(false);
     const [postRow, setpostRow] = useState(posts);
+    const [alertopen, setAlertOpen] = React.useState(false);
+    const [file, setFile] = useState("");
+    const [userID, setUserID] = useState("");
+    const [message, setmessage] = useState("successfully Added");
 
     const csvLink = {
         headers: posts.length > 0 ? Object.keys(posts[0]) : "",
@@ -118,6 +129,7 @@ function Post({ posts }) {
 
 
     useEffect(() => {
+        setUserID(session?.user.id);
     })
 
     const handleChangePage = (
@@ -167,12 +179,46 @@ function Post({ posts }) {
         });
         setpostRow(filteredRows);
         setemptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredRows.length) : 0)
-    };
+    }
 
     const cancelSearch = () => {
         setSearchValue("");
         setpostRow(posts)
-    };
+    }
+
+    const handleAlertClose = () => {
+        setAlertOpen(false);
+    }
+
+    const handleFileUpload = (e) => {
+        console.log("file selector!!!");
+
+        if (!e.target.files) {
+            return;
+        }
+        const file = e.target.files[0];
+        setFile(file)
+        setAlertOpen(true)
+    }
+
+    const handleAlertOk = () => {
+        setAlertOpen(false);
+        let body = new FormData();
+        console.log(userID);
+
+        body.append("user_id", userID);
+        body.append("file", file);
+        fetch("http://localhost:3000/api/post/upload/csv", {
+            method: "POST",
+            headers: {
+            },
+            body: body
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                json.success ? (setsuccess(true), setmessage(json.message), router.replace(router.asPath)) : null
+            })
+    }
 
     return (
         <>
@@ -197,16 +243,19 @@ function Post({ posts }) {
                         onChange={(searchVal) => requestSearch(searchVal)}
                         onCancelSearch={() => cancelSearch()}
                     />
-                    <button type="button" className="col btn btn-info text-white mx-4 search-btn" onClick={() => seachAction()}>
+                    <button type="button" className="col-1 btn btn-info text-white mx-4 search-btn" onClick={() => seachAction()}>
                         Search
                     </button>
-                    <button type="button" className="col btn btn-info text-white mx-4 search-btn" onClick={() => router.push("/post/add")}>
+                    <button type="button" className="col-1 btn btn-info text-white mx-4 search-btn" onClick={() => router.push("/post/add")}>
                         Add
                     </button>
-                    <button type="button" className="col btn btn-info text-white mx-4 search-btn" onClick={() => seachAction()}>
-                        Upload
-                    </button>
-                    <div className="col btn btn-info text-white mx-4 search-btn">
+                    <label className='col-1 mx-4 search-btn p-0' htmlFor="contained-button-file">
+                        <Input accept=".csv" id="contained-button-file" multiple type="file" onChange={e => handleFileUpload(e)} />
+                        <Button variant="contained" className='h-100 btn-info' component="span" disableRipple fullWidth>
+                            Upload
+                        </Button>
+                    </label>
+                    <div className="col-1 btn btn-info text-white mx-4 search-btn">
                         <CSVLink {...csvLink}>Download</CSVLink>
                     </div>
                 </div>
@@ -290,6 +339,27 @@ function Post({ posts }) {
                     successfully deleted
                 </Alert>
             </Snackbar>
+            <Snackbar open={success} autoHideDuration={6000}>
+                <Alert onClose={() => setsuccess(false)} severity="success" sx={{ width: '100%' }}>
+                    {message}
+                </Alert>
+            </Snackbar>
+            <Dialog
+                open={alertopen}
+                onClose={handleAlertClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Import CSV data to Post list?"}
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={handleAlertClose}>Cancle</Button>
+                    <Button onClick={handleAlertOk} autoFocus>
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }

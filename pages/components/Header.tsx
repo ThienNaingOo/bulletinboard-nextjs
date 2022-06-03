@@ -11,7 +11,7 @@ function Header() {
         <nav className="navbar navbar-expand-lg bg-info bg-gradient">
             <div className="container">
                 <a className="navbar-brand d-flex me-5 flex-row align-items-center text-white" href="/">
-                    <Image className="" lazyRoot={lazyRoot} src="/appstore.png" width="30" height="30" />
+                    <Image className="" lazyRoot={lazyRoot} src="/common/app.png" width="30" height="30" />
                     <p className="fs-4 fw-bolder text-white ms-2 mb-0">SCM Bulletin Board</p>
                 </a>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

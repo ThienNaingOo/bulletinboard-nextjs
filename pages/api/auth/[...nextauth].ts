@@ -3,7 +3,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import connectMongo from '../../../utils/dbConnect'
 import User from '../../../models/user.model'
 import bcrypt from "bcrypt";
-import Users from '../../../models/user.model';
 
 export default NextAuth({
   providers: [
@@ -46,7 +45,7 @@ export default NextAuth({
       if (session?.user) {
         await connectMongo();
         try {
-          const user = await Users.findOne({ _id: token.sub })
+          const user = await User.findOne({ _id: token.sub })
           session.user.id = user._id;
           session.user.type = user.type;
         } catch (error) {

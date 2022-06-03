@@ -8,6 +8,7 @@ import Image from 'next/image';
 import connectMongo from '../../utils/dbConnect'
 import { format } from 'date-fns';
 import User from "models/user.model";
+import Link from 'next/link';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -32,13 +33,13 @@ function UserUpdate({ userData }) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const [image, setImage] = useState("");
-    const [createObjectURL, setCreateObjectURL] = useState(userData.profile? userData.profile: "/appstore.png");
+    const [createObjectURL, setCreateObjectURL] = useState(userData.profile ? userData.profile : "/common/profile.png");
     const lazyRoot = React.useRef(null);
 
     useEffect(() => {
         setUserID(session?.user.id);
         // console.log(format(new Date(userData.dob), 'MM/dd/yyyy'));
-        
+
     })
 
     const confirmUserUpdate = (event) => {
@@ -94,7 +95,6 @@ function UserUpdate({ userData }) {
             <Header></Header>
             <div className="container my-5">
                 <div className="row justify-content-center mt-5">
-                    <label className="col-md-7 col-form-label text-md-start">{open}</label>
                     {confirm ?
                         <div className="col-md-8">
                             <div className="row mb-3">
@@ -144,8 +144,8 @@ function UserUpdate({ userData }) {
                         <div className="col-md-8">
                             <div className="row mb-3"><h4 className='text-info mb-2'>Update User</h4></div>
                             <form onSubmit={confirmUserUpdate}>
-                                <Image className="row mb-3" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
-                                <div className="row mb-3">
+                                <Image className="row" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
+                                <div className="row mb-3 mt-5">
                                     <label className="col-md-3 col-form-label text-md-start">Name</label>
                                     <input id="name" type="text" value={name} className="col-md-7 col-form-label text-md-start" name="name" required autoComplete="text"
                                         onChange={e => setname(e.target.value)} />
@@ -196,6 +196,11 @@ function UserUpdate({ userData }) {
                                     <input id="profile" type="file" className="col-md-7 col-form-label ps-0 text-md-start" name="profile" required autoComplete="text"
                                         onChange={e => uploadToClient(e)} />
                                 </div>
+                                <div className="row mb-3">
+                                    <Link href="/user/changepassword">
+                                        <a>Change Password?</a>
+                                    </Link>
+                                </div>
 
                                 <div className="row mt-3">
                                     <div className="col-md-10 text-md-start">
@@ -225,7 +230,7 @@ export const getServerSideProps = async (context) => {
 
     await connectMongo();
     const data = await User.findOne({ _id: context.query.userId })
-    console.log("_id",data);
+    console.log("_id", data);
     return {
         props: {
             userData: JSON.parse(JSON.stringify(data)),
