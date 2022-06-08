@@ -25,11 +25,8 @@ function Header() {
                             </li>
                             : null
                         }
-                        {/* <li className="nav-item me-3">
-                            <a className="nav-link text-white fs-6" href="#">Profile</a>
-                        </li> */}
                         <li className="nav-item">
-                            <a className="nav-link text-white fs-6" href="#">Posts</a>
+                            <a className="nav-link text-white fs-6" href="/">Posts</a>
                         </li>
                     </ul>
                     {session ?
@@ -39,11 +36,11 @@ function Header() {
                                     <a className="nav-link active" aria-current="page" href="/user/profile">
                                         <p className='text-white fw-bold'>{session.user?.name}</p>
                                     </a>
-                                </li>
+                                </li><p className='text-white fw-bold align-self-center'>|</p>
                                 <li className="nav-item">
-                                    <a className="nav-link active text-white" aria-current="page" onClick={() => {
+                                    <a className="nav-link active text-white" aria-current="page" href='/login' onClick={() => {
                                         signOut({ callbackUrl: '/login', redirect: true })
-                                    }}>Logout</a>
+                                    }}><p className='text-white fw-bold'>Log out</p></a>
                                 </li>
                             </ul>
                         </div> : null

@@ -1,6 +1,6 @@
-import Header from './components/Header'
-import connectMongo from '../utils/dbConnect'
-import Posts from '../models/post.model'
+import Header from '../components/Header'
+import connectMongo from '../../utils/dbConnect'
+import Posts from '../../models/post.model'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { format } from 'date-fns';
 import Table from '@mui/material/Table';

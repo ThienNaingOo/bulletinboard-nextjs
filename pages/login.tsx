@@ -1,22 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useRouter } from 'next/router';
 
 export default function Login() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const router = useRouter();
 
     const submit = async () => {
-        console.log(email, password);
-        let rrr = await signIn("credentials", {
-            redirect: true,
+        await signIn("credentials", {
+            redirect: false,
             email: email,
             password: password,
             callbackUrl: "/post"
-        }).then((result) => {
-            console.log(result);
-        })
-        console.log(rrr);
-
+        }).then((result: any) => {
+            (result.error == null)? router.replace('/post'): alert(result.error)
+        }).catch((error)=> (alert(error.error), console.log(error.error)
+        )
+        )
     }
 
     return (

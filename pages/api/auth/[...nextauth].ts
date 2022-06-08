@@ -9,11 +9,10 @@ export default NextAuth({
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        email: { label: "email", type: "text", placeholder: "jsmith" },
+        email: { label: "email", type: "text", placeholder: "***@***.***" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credential) {
-        // let saltWorkFactor = parseInt(process.env.SALT_WORK_FACTOR || "10") as number;
         await connectMongo();
         console.log("DATABASE CONNECTED", credential?.password);
         let password: any = credential?.password
@@ -21,19 +20,18 @@ export default NextAuth({
         try {
           user = await User.findOne({ email: credential?.email });
         } catch (error) {
-          console.log(error);
-          return Promise.resolve(null)
+          return Promise.reject(new Error('Error in login process.'))
         }
         let result = await bcrypt.compare(password, user.password)
-        return Promise.resolve(result ? user : null)
+        return (result ? Promise.resolve(user) : Promise.reject(new Error('Error in login process.')))
       }
     })],
   pages: {
-    signIn: '/auth/signin',
-    signOut: '/auth/signout',
-    error: '/auth/error', // Error code passed in query string as ?error=
-    verifyRequest: '/auth/verify-request', // (used for check email message)
-    newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
+    signIn: '/',
+    signOut: '/',
+    // error: '/', // Error code passed in query string as ?error=
+    // verifyRequest: '/auth/verify-request', // (used for check email message)
+    // newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
   },
   callbacks: {
     async redirect({ url, baseUrl }) {

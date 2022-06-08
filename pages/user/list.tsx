@@ -13,6 +13,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import { useRouter } from 'next/router';
 import SearchBar from "material-ui-search-bar";
+import Link from 'next/link';
 
 interface TablePaginationActionsProps {
     count: number;
@@ -185,14 +186,14 @@ function UserList({ users }) {
                     <Table sx={{ minWidth: 650 }} aria-label="custom pagination table">
                         <TableHead>
                             <TableRow>
-                                <TableCell align="left">Name</TableCell>
-                                <TableCell align="left">Email</TableCell>
-                                <TableCell align="left">Created User</TableCell>
-                                <TableCell align="left">Phone</TableCell>
-                                <TableCell align="left">Birth Date</TableCell>
-                                <TableCell align="left">Address</TableCell>
-                                <TableCell align="left">Created Date</TableCell>
-                                <TableCell align="left">Updated Date</TableCell>
+                                <TableCell align="left" className='text-info fw-bold h6'>Name</TableCell>
+                                <TableCell align="left" className='text-info fw-bold h6'>Email</TableCell>
+                                <TableCell align="left" className='text-info fw-bold h6'>Created User</TableCell>
+                                <TableCell align="left" className='text-info fw-bold h6'>Phone</TableCell>
+                                <TableCell align="left" className='text-info fw-bold h6'>Birth Date</TableCell>
+                                <TableCell align="left" className='text-info fw-bold h6'>Address</TableCell>
+                                <TableCell align="left" className='text-info fw-bold h6'>Created Date</TableCell>
+                                <TableCell align="left" className='text-info fw-bold h6'>Updated Date</TableCell>
                                 <TableCell align="left"></TableCell>
                             </TableRow>
                         </TableHead>
@@ -205,7 +206,12 @@ function UserList({ users }) {
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
                                         <TableCell component="th" scope="row">
-                                            {data.name}
+                                            {/* <div onClick={() => router.push({ pathname: , query: { userId: data._id } })}>
+                                                <a></a>
+                                            </div> */}
+                                            <Link href={'/user/detail?userId=' + data._id}>
+                                                <a style={{textDecoration: "underline", color: "blue"}}>{data.name}</a>
+                                            </Link>
                                         </TableCell>
                                         <TableCell component="th" scope="row">{data.email}</TableCell>
                                         <TableCell component="th" scope="row">{data.created_user_id?.name}</TableCell>

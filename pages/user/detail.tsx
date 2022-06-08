@@ -1,10 +1,9 @@
 import connectMongo from './../../utils/dbConnect';
 import Users from '../../models/user.model';
-import { getSession } from "next-auth/react";
 import Header from 'pages/components/Header';
 import { useRouter } from 'next/router';
 
-function Profile({ data }) {
+function UserDetail({ data }) {
     const router = useRouter();
 
     return (
@@ -14,7 +13,7 @@ function Profile({ data }) {
                 <div className="row justify-content-center mt-5">
                     <div className="col-md-8">
                         <div className="card">
-                            <div className="card-header bg-info"><h4 className='text-white'>User Profile</h4></div>
+                            <div className="card-header bg-info"><h4 className='text-white'>User Details</h4></div>
 
                             <div className="card-body">
                                 <div className="row">
@@ -61,10 +60,12 @@ function Profile({ data }) {
     )
 }
 
-export const getServerSideProps = async () => {
-    const session: any = await getSession();
+export const getServerSideProps = async (context) => {
     await connectMongo();
-    const user = await Users.findOne({ id: session?.user?.id })
+    console.log(context.query.userId);
+    
+    const user = await Users.findOne({ _id: context.query.userId })
+
     return {
         props: {
             data: JSON.parse(JSON.stringify(user))
@@ -72,4 +73,4 @@ export const getServerSideProps = async () => {
     }
 }
 
-export default Profile
+export default UserDetail
