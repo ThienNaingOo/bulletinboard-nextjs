@@ -3,7 +3,7 @@ import Header from 'pages/components/Header';
 import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
-import { useRouter } from 'next/router';
+import Router, { useRouter } from 'next/router';
 import Image from 'next/image';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
@@ -34,10 +34,22 @@ function UserCreate() {
 
     useEffect(() => {
         setUserID(session?.user.id);
+        if( window ) {
+            Router.beforePopState(()=> {
+                // console.log("as,",as == router.asPath , confirm);
+                if (confirm) {
+                    setname(name)
+                    setConfirm(false)
+                    return false
+                }
+                return true
+            })
+        }
     })
 
     const confirmUserCreate = (event) => {
         event.preventDefault();
+        // router.push({ pathname: '/user/add/confirm', query: { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: image, createObjectURL: createObjectURL  } })
         setConfirm(true)
     }
 

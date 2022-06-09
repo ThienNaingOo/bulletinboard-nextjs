@@ -1,23 +1,28 @@
-import React, { useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from 'next/router'
+import React from "react";
+import { getSession } from "next-auth/react";
 
 function Home(props: any) {
-  const router = useRouter()
-  const { data: session } = useSession();
-
-  useEffect(() => {
-    if (session == null) {
-      router.push('/login');
-    } else {
-      router.push('/post');
-    }
-  })
-
   return (
     <>
     </>
   )
+}
+
+export const getServerSideProps = async (ctx) => {
+  const session: any = await getSession(ctx)
+  if (!session) {
+      return {
+          redirect: {
+              permanent: false,
+              destination: '/login'
+          }
+      }
+  } else return {
+    redirect: {
+      permanent: false,
+      destination: '/post'
+  }
+  }
 }
 
 export default Home

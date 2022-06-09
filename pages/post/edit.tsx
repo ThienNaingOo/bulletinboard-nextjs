@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import Header from 'pages/components/Header';
 import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
@@ -30,7 +30,7 @@ function PostEdit({ postData }) {
     useEffect(() => {
         setUserID(session?.user.id);
         console.log(postData);
-        
+
     }, [])
 
     const confirmPostCreate = (event) => {
@@ -94,7 +94,7 @@ function PostEdit({ postData }) {
                             <div className="row">
                                 <label className="col-md-4 col-form-label text-md-start">Status</label>
                                 <div className="col-md-6 col-form-label ps-0">
-                                    <Switch className="text-md-start" color="info" disabled {...label} checked={status}/>
+                                    <Switch className="text-md-start" color="info" disabled {...label} checked={status} />
                                 </div>
                             </div>
                             <div className="row mt-3">
@@ -154,13 +154,21 @@ function PostEdit({ postData }) {
 }
 
 export const getServerSideProps = async (context) => {
-    console.log(context);
-
-    await connectMongo();
-    const postData = await mongoose.model('Post').findOne({ _id: context.query.postId })
-    return {
-        props: {
-            postData: JSON.parse(JSON.stringify(postData))
+    const session: any = await getSession(context);
+    if (!session) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: '/'
+            }
+        }
+    } else {
+        await connectMongo();
+        const postData = await mongoose.model('Post').findOne({ _id: context.query.postId })
+        return {
+            props: {
+                postData: JSON.parse(JSON.stringify(postData))
+            }
         }
     }
 }

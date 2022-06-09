@@ -14,6 +14,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import { useRouter } from 'next/router';
 import SearchBar from "material-ui-search-bar";
 import Link from 'next/link';
+import { getSession } from 'next-auth/react';
 
 interface TablePaginationActionsProps {
     count: number;
@@ -210,7 +211,7 @@ function UserList({ users }) {
                                                 <a></a>
                                             </div> */}
                                             <Link href={'/user/detail?userId=' + data._id}>
-                                                <a style={{textDecoration: "underline", color: "blue"}}>{data.name}</a>
+                                                <a style={{ textDecoration: "underline", color: "blue" }}>{data.name}</a>
                                             </Link>
                                         </TableCell>
                                         <TableCell component="th" scope="row">{data.email}</TableCell>
@@ -265,12 +266,22 @@ function UserList({ users }) {
     )
 }
 
-export const getServerSideProps = async () => {
-    await connectMongo();
-    const alluser = await Users.find().populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' }).sort({ created_at: -1 })
-    return {
-        props: {
-            users: JSON.parse(JSON.stringify(alluser))
+export const getServerSideProps = async (ctx) => {
+    const session: any = await getSession(ctx)
+    if (!session) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: '/'
+            }
+        }
+    } else {
+        await connectMongo();
+        const alluser = await Users.find().populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' }).sort({ created_at: -1 })
+        return {
+            props: {
+                users: JSON.parse(JSON.stringify(alluser))
+            }
         }
     }
 }

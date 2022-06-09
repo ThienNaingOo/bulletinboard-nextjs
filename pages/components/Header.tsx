@@ -5,7 +5,7 @@ import { signOut } from "next-auth/react";
 
 function Header() {
     const { data: session }: any = useSession();
-    const lazyRoot = React.useRef(null);
+    const lazyRoot = React.useRef(null);    
 
     return (
         <nav className="navbar navbar-expand-lg bg-info bg-gradient">
@@ -26,7 +26,7 @@ function Header() {
                             : null
                         }
                         <li className="nav-item">
-                            <a className="nav-link text-white fs-6" href="/">Posts</a>
+                            <a className="nav-link text-white fs-6" href="/post">Posts</a>
                         </li>
                     </ul>
                     {session ?

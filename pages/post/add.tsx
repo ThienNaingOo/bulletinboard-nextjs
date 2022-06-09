@@ -1,9 +1,9 @@
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import Header from 'pages/components/Header';
 import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
-import { useRouter } from 'next/router'
+import Router, { useRouter } from 'next/router'
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -23,7 +23,7 @@ function PostCreate() {
 
     useEffect(() => {
         console.log(session);
-        
+
         setUserID(session?.user.id);
     })
 
@@ -137,6 +137,20 @@ function PostCreate() {
             </Snackbar>
         </div>
     )
+}
+
+export const getServerSideProps = async (ctx) => {
+    const session: any = await getSession(ctx)
+    if (!session) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: '/'
+            }
+        }
+    } else return {
+        props: {}
+    }
 }
 
 export default PostCreate

@@ -2,6 +2,8 @@ import connectMongo from './../../utils/dbConnect';
 import Users from '../../models/user.model';
 import Header from 'pages/components/Header';
 import { useRouter } from 'next/router';
+import { getSession } from 'next-auth/react';
+import { format } from 'date-fns';
 
 function UserDetail({ data }) {
     const router = useRouter();
@@ -24,10 +26,10 @@ function UserDetail({ data }) {
                                     <label className="col-md-4 col-form-label text-md-start">Email Address</label>
                                     <label className="col-md-6 col-form-label text-md-start">{data.email}</label>
                                 </div>
-                                <div className="row">
+                                {/* <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Password</label>
                                     <label className="col-md-6 col-form-label text-md-start">{data.password}</label>
-                                </div>
+                                </div> */}
                                 <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Type</label>
                                     <label className="col-md-6 col-form-label text-md-start">{(data.type == 0) ? "admin" : "user"}</label>
@@ -38,7 +40,7 @@ function UserDetail({ data }) {
                                 </div>
                                 <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Date of Birth</label>
-                                    <label className="col-md-6 col-form-label text-md-start">{data.dob}</label>
+                                    <label className="col-md-6 col-form-label text-md-start">{format(new Date(data.dob), 'MM/dd/yyyy')}</label>
                                 </div>
                                 <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Address</label>
@@ -61,14 +63,22 @@ function UserDetail({ data }) {
 }
 
 export const getServerSideProps = async (context) => {
-    await connectMongo();
-    console.log(context.query.userId);
-    
-    const user = await Users.findOne({ _id: context.query.userId })
+    const session: any = await getSession(context);
+    if (!session) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: '/'
+            }
+        }
+    } else {
+        await connectMongo();
+        const user = await Users.findOne({ _id: context.query.userId })
 
-    return {
-        props: {
-            data: JSON.parse(JSON.stringify(user))
+        return {
+            props: {
+                data: JSON.parse(JSON.stringify(user))
+            }
         }
     }
 }

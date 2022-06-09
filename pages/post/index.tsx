@@ -20,7 +20,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import { useTheme } from '@mui/material/styles';
 import { CSVLink } from 'react-csv'
 import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import SearchBar from "material-ui-search-bar";
@@ -364,12 +364,22 @@ function Post({ posts }) {
     )
 }
 
-export const getServerSideProps = async () => {
-    await connectMongo();
-    const allpost = await Posts.find({ status: 1 }).populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' }).sort({ created_at: -1 })
-    return {
-        props: {
-            posts: allpost.length > 0 ? JSON.parse(JSON.stringify(allpost)) : []
+export const getServerSideProps = async (ctx) => {
+    const session: any = await getSession(ctx)
+    if (!session) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: '/'
+            }
+        }
+    } else {
+        await connectMongo();
+        const allpost = await Posts.find({ status: 1 }).populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' }).sort({ created_at: -1 })
+        return {
+            props: {
+                posts: allpost.length > 0 ? JSON.parse(JSON.stringify(allpost)) : []
+            }
         }
     }
 }

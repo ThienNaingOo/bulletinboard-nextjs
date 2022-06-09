@@ -3,6 +3,7 @@ import Users from '../../models/user.model';
 import { getSession } from "next-auth/react";
 import Header from 'pages/components/Header';
 import { useRouter } from 'next/router';
+import { format } from 'date-fns';
 
 function Profile({ data }) {
     const router = useRouter();
@@ -25,10 +26,10 @@ function Profile({ data }) {
                                     <label className="col-md-4 col-form-label text-md-start">Email Address</label>
                                     <label className="col-md-6 col-form-label text-md-start">{data.email}</label>
                                 </div>
-                                <div className="row">
+                                {/* <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Password</label>
                                     <label className="col-md-6 col-form-label text-md-start">{data.password}</label>
-                                </div>
+                                </div> */}
                                 <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Type</label>
                                     <label className="col-md-6 col-form-label text-md-start">{(data.type == 0) ? "admin" : "user"}</label>
@@ -39,7 +40,7 @@ function Profile({ data }) {
                                 </div>
                                 <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Date of Birth</label>
-                                    <label className="col-md-6 col-form-label text-md-start">{data.dob}</label>
+                                    <label className="col-md-6 col-form-label text-md-start">{format(new Date(data.dob), 'MM/dd/yyyy')}</label>
                                 </div>
                                 <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Address</label>
@@ -61,13 +62,22 @@ function Profile({ data }) {
     )
 }
 
-export const getServerSideProps = async () => {
-    const session: any = await getSession();
-    await connectMongo();
-    const user = await Users.findOne({ id: session?.user?.id })
-    return {
-        props: {
-            data: JSON.parse(JSON.stringify(user))
+export const getServerSideProps = async (ctx) => {
+    const session: any = await getSession(ctx);
+    if (!session) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: '/'
+            }
+        }
+    } else {
+        await connectMongo();
+        const user = await Users.findOne({ _id: session?.user?.id })
+        return {
+            props: {
+                data: JSON.parse(JSON.stringify(user))
+            }
         }
     }
 }

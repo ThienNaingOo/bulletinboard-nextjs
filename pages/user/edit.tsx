@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import Header from 'pages/components/Header';
 import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
@@ -44,7 +44,8 @@ function UserUpdate({ userData }) {
 
     const confirmUserUpdate = (event) => {
         event.preventDefault();
-        (password !== confirmpwd) ? alert("Password are not same.") : setConfirm(true)
+        (password !== confirmpwd) ? alert("Password are not same.") : 
+        setConfirm(true)
     }
 
     const clearEvent = () => {
@@ -132,7 +133,7 @@ function UserUpdate({ userData }) {
                             <div className="row mt-3">
                                 <div className="col-md-10 text-md-start">
                                     <button type="button" className="col btn btn-info text-white me-4 search-btn" onClick={confirmEvent}>
-                                        Create
+                                        Update
                                     </button>
                                     <button type="button" className="col btn btn-outline-info mx-4 search-btn" onClick={clearEvent}>
                                         Cancle
@@ -157,7 +158,7 @@ function UserUpdate({ userData }) {
                                         title="Email is invalid."
                                         onChange={e => setemail(e.target.value)} />
                                 </div>
-                                <div className="row mb-3">
+                                {/* <div className="row mb-3">
                                     <label className="col-md-3 col-form-label text-md-start">Password</label>
                                     <input id="password" type="password" value={password} className="col-md-7 col-form-label text-md-start" name="password" required autoComplete="password"
                                         onChange={e => setpassword(e.target.value)} />
@@ -166,7 +167,7 @@ function UserUpdate({ userData }) {
                                     <label className="col-md-3 col-form-label text-md-start">Confirm Password</label>
                                     <input id="confirmpwd" type="password" className="col-md-7 col-form-label text-md-start" name="confirmpwd" required autoComplete="password"
                                         onChange={e => setconfirmpwd(e.target.value)} />
-                                </div>
+                                </div> */}
                                 <div className="row mb-3">
                                     <label className="col-md-3 col-form-label text-md-start">Type</label>
                                     <select className="col-md-7 col-form-label text-md-start" value={type} onChange={e => settype(e.target.value)}>
@@ -193,7 +194,7 @@ function UserUpdate({ userData }) {
                                 </div>
                                 <div className="row mb-3">
                                     <label className="col-md-3 col-form-label text-md-start">Profile</label>
-                                    <input id="profile" type="file" className="col-md-7 col-form-label ps-0 text-md-start" name="profile" required autoComplete="text"
+                                    <input id="profile" type="file" className="col-md-7 col-form-label ps-0 text-md-start" name="profile"
                                         onChange={e => uploadToClient(e)} />
                                 </div>
                                 <div className="row mb-3">
@@ -227,14 +228,22 @@ function UserUpdate({ userData }) {
 }
 
 export const getServerSideProps = async (context) => {
-
-    await connectMongo();
-    const data = await User.findOne({ _id: context.query.userId })
-    console.log("_id", data);
-    return {
-        props: {
-            userData: JSON.parse(JSON.stringify(data)),
-            // getUserID: context.query.userId
+    const session: any = await getSession(context);
+    if (!session) {
+        return {
+            redirect: {
+                permanent: false,
+                destination: '/'
+            }
+        }
+    } else {
+        await connectMongo();
+        const data = await User.findOne({ _id: context.query.userId })
+        console.log("_id", data);
+        return {
+            props: {
+                userData: JSON.parse(JSON.stringify(data)),
+            }
         }
     }
 }
