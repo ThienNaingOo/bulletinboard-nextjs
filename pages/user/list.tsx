@@ -268,7 +268,7 @@ function UserList({ users }) {
 
 export const getServerSideProps = async (ctx) => {
     const session: any = await getSession(ctx)
-    if (!session) {
+    if (!session || session?.user?.type == 1) {
         return {
             redirect: {
                 permanent: false,
