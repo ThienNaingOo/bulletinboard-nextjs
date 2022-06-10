@@ -3,7 +3,7 @@ import Header from 'pages/components/Header';
 import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
-import Router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -22,44 +22,44 @@ function PostCreate() {
     const router = useRouter();
 
     useEffect(() => {
-        console.log(session);
-
+        console.log("POST/ADD");
+        
         setUserID(session?.user.id);
     })
 
     const confirmPostCreate = (event) => {
         event.preventDefault();
-        console.log(title, description);
-        setConfirm(true)
+        router.push({ pathname: '/post/add/confirm', query: { title: title, description: description}})
+        // setConfirm(true)
     }
 
     const clearEvent = () => {
-        setConfirm(false)
+        // setConfirm(false)
     }
 
-    const confirmEvent = async () => {
-        let body = {
-            title: title,
-            description: description,
-            created_user_id: userID ? userID : "",
-        }
-        console.log(body);
+    // const confirmEvent = async () => {
+    //     let body = {
+    //         title: title,
+    //         description: description,
+    //         created_user_id: userID ? userID : "",
+    //     }
+    //     console.log(body);
 
-        fetch("http://localhost:3000/api/post/create", {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body)
-        })
-            .then((response) => response.json())
-            .then((json) => {
-                console.log(json);
-                setOpen(true)
-                router.back()
-            })
-    }
+    //     fetch("http://localhost:3000/api/post/create", {
+    //         method: "POST",
+    //         headers: {
+    //             Accept: "application/json",
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(body)
+    //     })
+    //         .then((response) => response.json())
+    //         .then((json) => {
+    //             console.log(json);
+    //             setOpen(true)
+    //             router.back()
+    //         })
+    // }
 
     const handleClose = () => {
         // if (reason === 'clickaway') {
@@ -78,7 +78,7 @@ function PostCreate() {
                     <label className="col-md-6 col-form-label text-md-start">{open}</label>
                     {confirm ?
                         <div className="col-md-8">
-                            <div className="row mb-3">
+                            {/* <div className="row mb-3">
                                 <h4 className='text-info mb-2'>Create Post Confirmation</h4>
                             </div>
                             <div className="row mb-3">
@@ -98,7 +98,7 @@ function PostCreate() {
                                         Cancle
                                     </button>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                         :
                         <div className="col-md-8">
@@ -106,12 +106,12 @@ function PostCreate() {
                             <form onSubmit={confirmPostCreate}>
                                 <div className="row mb-3">
                                     <label className="col-md-4 col-form-label text-md-start">Title</label>
-                                    <input id="title" type="text" className="col-md-6 col-form-label text-md-start" name="title" required autoComplete="text"
+                                    <input id="title" type="text" className="col-md-6 col-form-label text-md-start" name="title" required value={title}
                                         onChange={e => setTitle(e.target.value)} />
                                 </div>
                                 <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Description</label>
-                                    <textarea id='description' className="col-md-6 col-form-label text-md-start" rows={5} required autoComplete="text"
+                                    <textarea id='description' className="col-md-6 col-form-label text-md-start" rows={5} required value={description}
                                         onChange={e => setDescription(e.target.value)} />
                                 </div>
 
@@ -140,6 +140,8 @@ function PostCreate() {
 }
 
 export const getServerSideProps = async (ctx) => {
+    
+    console.log("POST/ADD/Server");
     const session: any = await getSession(ctx)
     if (!session) {
         return {

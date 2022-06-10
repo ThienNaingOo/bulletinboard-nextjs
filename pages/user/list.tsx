@@ -1,7 +1,7 @@
 import Header from './../components/Header';
 import connectMongo from './../../utils/dbConnect';
 import Users from '../../models/user.model';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -15,6 +15,8 @@ import { useRouter } from 'next/router';
 import SearchBar from "material-ui-search-bar";
 import Link from 'next/link';
 import { getSession } from 'next-auth/react';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 
 interface TablePaginationActionsProps {
     count: number;
@@ -25,6 +27,13 @@ interface TablePaginationActionsProps {
         newPage: number,
     ) => void;
 }
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+    props,
+    ref,
+) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function TablePaginationActions(props: TablePaginationActionsProps) {
     const theme = useTheme();
@@ -262,6 +271,11 @@ function UserList({ users }) {
                         </TableFooter>
                     </Table></TableContainer>
             </div>
+            <Snackbar open={open} autoHideDuration={6000}>
+                <Alert onClose={()=> setOpen(false)} severity="success" sx={{ width: '100%' }}>
+                    This is a success message!
+                </Alert>
+            </Snackbar>
         </>
     )
 }

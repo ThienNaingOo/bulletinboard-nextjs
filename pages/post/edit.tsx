@@ -21,7 +21,7 @@ function PostEdit({ postData }) {
     const [confirm, setConfirm] = useState(false)
     const [title, setTitle] = useState(postData.title)
     const [description, setDescription] = useState(postData.description);
-    const [status, setStatus] = useState(true)
+    const [status, setStatus] = useState(postData.status == '0' ? false : true)
     const { data: session }: any = useSession();
     const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
@@ -48,6 +48,7 @@ function PostEdit({ postData }) {
             post_id: postData._id,
             title: title,
             description: description,
+            status: status ? 1 : 0,
             updated_user_id: userID ? userID : "",
         }
         console.log(body);
@@ -81,7 +82,7 @@ function PostEdit({ postData }) {
                     {confirm ?
                         <div className="col-md-8">
                             <div className="row mb-3">
-                                <h4 className='text-info mb-2'>Create Post Confirmation</h4>
+                                <h4 className='text-info mb-2'>Update Post Confirmation</h4>
                             </div>
                             <div className="row mb-3">
                                 <label className="col-md-4 col-form-label text-md-start">Title</label>
@@ -100,7 +101,7 @@ function PostEdit({ postData }) {
                             <div className="row mt-3">
                                 <div className="col-md-10 text-md-start">
                                     <button type="button" className="col btn btn-info text-white me-4 search-btn" onClick={confirmEvent}>
-                                        Create
+                                        Update
                                     </button>
                                     <button type="button" className="col btn btn-outline-info mx-4 search-btn" onClick={cancleEvent}>
                                         Cancle
@@ -164,10 +165,21 @@ export const getServerSideProps = async (context) => {
         }
     } else {
         await connectMongo();
-        const postData = await mongoose.model('Post').findOne({ _id: context.query.postId })
-        return {
-            props: {
-                postData: JSON.parse(JSON.stringify(postData))
+        const postData: any = await mongoose.model('Post').findOne({ _id: context.query.postId })
+        console.log(postData);
+
+        if (session.user.id === postData.created_user_id + "") {
+            return {
+                props: {
+                    postData: JSON.parse(JSON.stringify(postData))
+                }
+            }
+        } else {
+            return {
+                redirect: {
+                    permanent: false,
+                    destination: '/'
+                }
             }
         }
     }

@@ -34,17 +34,17 @@ function UserCreate() {
 
     useEffect(() => {
         setUserID(session?.user.id);
-        if( window ) {
-            Router.beforePopState(()=> {
-                // console.log("as,",as == router.asPath , confirm);
-                if (confirm) {
-                    setname(name)
-                    setConfirm(false)
-                    return false
-                }
-                return true
-            })
-        }
+        // if( window ) {
+        //     Router.beforePopState(()=> {
+        //         // console.log("as,",as == router.asPath , confirm);
+        //         if (confirm) {
+        //             setname(name)
+        //             setConfirm(false)
+        //             return false
+        //         }
+        //         return true
+        //     })
+        // }
     })
 
     const confirmUserCreate = (event) => {

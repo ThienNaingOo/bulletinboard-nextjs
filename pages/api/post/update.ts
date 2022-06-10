@@ -7,7 +7,12 @@ export default async function handler(req, res) {
         try {
             await connectMongo();
             const filter = { _id: req.body.post_id }
-            const update = { status: 0, deleted_user_id: req.body.user_id, deleted_at: Date.now() };
+            const update = {
+                title: req.body.title,
+                description: req.body.description,
+                status: req.body.status, 
+                updated_user_id: req.body.updated_user_id, 
+                updated_at: Date.now() };
             const postUpdate = await Post.findOneAndUpdate(filter, update, {
                 new: true,
                 upsert: true

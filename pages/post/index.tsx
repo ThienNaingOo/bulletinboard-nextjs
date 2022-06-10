@@ -118,10 +118,17 @@ function Post({ posts }) {
     const [file, setFile] = useState("");
     const [userID, setUserID] = useState("");
     const [message, setmessage] = useState("successfully Added");
+    const [errorAlert, setErrorAlert] = useState(false)
 
     const csvLink = {
-        headers: posts.length > 0 ? Object.keys(posts[0]) : "",
-        data: posts,
+        header: ['title', 'description', 'posted_user', 'created_at'],
+        // headers: posts.length > 0 ? Object.keys(posts[0]) : "",
+        data: posts.map((data, idx) => {
+            return {
+                title: data.title, description: data.description, posted_user: data.created_user_id.name,
+                created_at: format(new Date(data.created_at), 'MM/dd/yyyy'),
+            }
+        }),
         filename: `post.csv`
     }
 
@@ -169,21 +176,41 @@ function Post({ posts }) {
             .then((response) => response.json())
             .then((json) => {
                 console.log(json);
-                json.success ? (router.replace(router.asPath), setOpen(true)) : null
+                json.success ? (
+                    setTimeout(() => {
+                        router.reload()
+                    }, 1000)
+                    , setsuccess(true), setmessage("successfully deleted.")) : null
             })
     }
 
-    const requestSearch = (searchedVal: string) => {
-        const filteredRows = posts.filter((row) => {
-            return row.title.toLowerCase().includes(searchedVal.toLowerCase());
-        });
-        setpostRow(filteredRows);
-        setemptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredRows.length) : 0)
+    const requestSearch = async (searchedVal: string) => {
+        await fetch("http://localhost:3000/api/post/search?id=" + session.user.id + "&key=" + searchedVal, {
+            method: "GET",
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                json.success ? (
+                    setpostRow(json.data),
+                    setemptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - json.data.length) : 0)
+                ) : setErrorAlert(true)
+            })
+    }
+
+    const fetchPostList = async () => {
+        await fetch("http://localhost:3000/api/post/list?id=" + session.user.id, {
+            method: "GET",
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                setSearchValue("")
+                setpostRow(json.query)
+                setemptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - json.query.length) : 0)
+            })
     }
 
     const cancelSearch = () => {
-        setSearchValue("");
-        setpostRow(posts)
+        fetchPostList()
     }
 
     const handleAlertClose = () => {
@@ -240,10 +267,13 @@ function Post({ posts }) {
                     <SearchBar
                         className="col-6 my-2 searbar-w px-3"
                         value={searchValue}
-                        onChange={(searchVal) => requestSearch(searchVal)}
+                        onChange={(value) => {
+                            setSearchValue(value)
+                        }
+                        }
                         onCancelSearch={() => cancelSearch()}
                     />
-                    <button type="button" className="col-1 btn btn-info text-white mx-4 search-btn" onClick={() => seachAction()}>
+                    <button type="button" className="col-1 btn btn-info text-white mx-4 search-btn" onClick={() => requestSearch(searchValue)}>
                         Search
                     </button>
                     <button type="button" className="col-1 btn btn-info text-white mx-4 search-btn" onClick={() => router.push("/post/add")}>
@@ -278,6 +308,7 @@ function Post({ posts }) {
                                     return <TableRow
                                         key={idx}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                        style={data.status == '0' ? { background: '#c6c6c6' } : {}}
                                     >
                                         <TableCell component="th" scope="row">
                                             {data.title}
@@ -286,14 +317,22 @@ function Post({ posts }) {
                                         <TableCell align="left">{data.created_user_id?.name}</TableCell>
                                         <TableCell align="left">{format(new Date(data.created_at), 'MM/dd/yyyy')}</TableCell>
                                         <TableCell align="left">
-                                            <button type="button" className="btn btn-info text-white m-2 search-btn" onClick={() => router.push({ pathname: "/post/edit", query: { postId: data._id } })}>
-                                                Edit
-                                            </button>
+                                            {
+                                                session?.user.id == data.created_user_id._id ?
+                                                    <button type="button" className="btn btn-info text-white m-0 search-btn" onClick={() => router.push({ pathname: "/post/edit", query: { postId: data._id } })}>
+                                                        Edit
+                                                    </button>
+                                                    : null
+                                            }
                                         </TableCell>
                                         <TableCell align="left">
-                                            <button type="button" className="btn btn-danger text-white m-2 search-btn" onClick={() => deleteAction(data._id)}>
-                                                Delete
-                                            </button>
+                                            {
+                                                (session?.user.id == data.created_user_id._id && data.status !== '0') ?
+                                                    <button type="button" className="btn btn-danger text-white m-0 search-btn" onClick={() => deleteAction(data._id)}>
+                                                        Delete
+                                                    </button>
+                                                    : data.status == '0' ? "Deleted." : null
+                                            }
                                         </TableCell>
                                     </TableRow>
                                 })}
@@ -314,7 +353,7 @@ function Post({ posts }) {
                                     align='center'
                                     rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                                     colSpan={6}
-                                    count={posts.length}
+                                    count={postRow.length}
                                     rowsPerPage={rowsPerPage}
                                     page={page}
                                     SelectProps={{
@@ -334,16 +373,12 @@ function Post({ posts }) {
                     : <h1 className='text-warning align-self-center my-5'>There is no Post at this time.</h1>}
 
             </div>
-            <Snackbar open={open} autoHideDuration={6000}>
-                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+            {/* <Snackbar open={open} autoHideDuration={6000}>
+                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
                     successfully deleted
                 </Alert>
-            </Snackbar>
-            <Snackbar open={success} autoHideDuration={6000}>
-                <Alert onClose={() => setsuccess(false)} severity="success" sx={{ width: '100%' }}>
-                    {message}
-                </Alert>
-            </Snackbar>
+            </Snackbar> */}
+
             <Dialog
                 open={alertopen}
                 onClose={handleAlertClose}
@@ -351,7 +386,7 @@ function Post({ posts }) {
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    {"Import CSV data to Post list?"}
+                    Import CSV data to Post list?
                 </DialogTitle>
                 <DialogActions>
                     <Button onClick={handleAlertClose}>Cancle</Button>
@@ -360,6 +395,29 @@ function Post({ posts }) {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <Dialog
+                open={errorAlert}
+                onClose={() => setErrorAlert(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    Your search result is not Found.
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={() => {
+                        setErrorAlert(false)
+                        fetchPostList()
+                    }} autoFocus>
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <Snackbar open={success} autoHideDuration={6000}>
+                <Alert onClose={() => setsuccess(false)} severity="success" sx={{ width: '100%' }}>
+                    {message}
+                </Alert>
+            </Snackbar>
         </>
     )
 }
@@ -374,11 +432,21 @@ export const getServerSideProps = async (ctx) => {
             }
         }
     } else {
-        await connectMongo();
-        const allpost = await Posts.find({ status: 1 }).populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' }).sort({ created_at: -1 })
+        // await connectMongo();
+        // const allpost = await Posts.find({ status: 1 })
+        // .populate({ path: 'created_user_id', model: 'User', select: 'name type _id' })
+        // .sort({ created_at: -1 })
+        let data;
+        await fetch("http://localhost:3000/api/post/list?id=" + session.user.id, {
+            method: "GET",
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                data = json
+            })
         return {
             props: {
-                posts: allpost.length > 0 ? JSON.parse(JSON.stringify(allpost)) : []
+                posts: data.success ? data.query : []
             }
         }
     }
