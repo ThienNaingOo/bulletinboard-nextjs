@@ -14,7 +14,6 @@ export default NextAuth({
       },
       async authorize(credential) {
         await connectMongo();
-        console.log("DATABASE CONNECTED", credential?.password);
         let password: any = credential?.password
         let user;
         try {

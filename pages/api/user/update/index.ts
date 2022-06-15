@@ -2,7 +2,6 @@ import connectMongo from '../../../../utils/dbConnect'
 import User from '../../../../models/user.model'
 import { IncomingForm } from 'formidable'
 import { promises as fs } from 'fs'
-import bcrypt from "bcrypt";
 
 export const config = {
     api: {
@@ -12,29 +11,22 @@ export const config = {
 
 const saveFile = async (file) => {
     const data = await fs.readFile(file.filepath + "");
-    fs.writeFile(`./public/${file.originalFilename}`, data);
+    fs.writeFile(`./public/profile/${file.originalFilename}`, data);
     await fs.unlink(file.filepath);
-    return "/" + file.originalFilename;
+    return "/profile/" + file.originalFilename;
 };
 
-
 export default async function handler(req, res) {
-
-    let saltWorkFactor = parseInt("10") as number;
-    let salt = await bcrypt.genSalt(saltWorkFactor);
-
     if (req.method === 'POST') {
         try {
             await connectMongo();
             const form = new IncomingForm();
             await form.parse(req, async function (err, fields, files) {
-                let hashedPassword = await bcrypt.hash(fields.password, salt);
-                const profile = await saveFile(files.file);
+                const profile = (fields.is_profileupdate === 'true')? fields.profile: await saveFile(files.file);
                 const filter = { _id: fields.id }
                 const update = {
                     name: fields.name,
                     email: fields.email,
-                    password: hashedPassword,
                     profile: profile,
                     type: fields.type,
                     phone: fields.phone,
@@ -42,7 +34,7 @@ export default async function handler(req, res) {
                     address: fields.address,
                     updated_user_id: fields.updated_user_id,
                     updatedAt: new Date().toDateString()
-                }
+                }                
                 const user = await User.findOneAndUpdate(filter, update, {
                     new: true,
                     upsert: true

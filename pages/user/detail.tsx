@@ -4,9 +4,13 @@ import Header from 'pages/components/Header';
 import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import { format } from 'date-fns';
+import Image from 'next/image';
+import React, { useState } from 'react';
 
 function UserDetail({ data }) {
     const router = useRouter();
+    const lazyRoot = React.useRef(null);
+    const [createObjectURL, setCreateObjectURL] = useState(data.profile ? data.profile : "");
 
     return (
         <div>
@@ -18,6 +22,7 @@ function UserDetail({ data }) {
                             <div className="card-header bg-info"><h4 className='text-white'>User Details</h4></div>
 
                             <div className="card-body">
+                            <Image className="row mb-3" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
                                 <div className="row">
                                     <label className="col-md-4 col-form-label text-md-start">Name</label>
                                     <label className="col-md-6 col-form-label text-md-start">{data.name}</label>

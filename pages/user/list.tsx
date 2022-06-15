@@ -103,8 +103,6 @@ function UserList({ users }) {
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
 
     useEffect(() => {
-        console.log(users);
-
     })
 
     const handleChangePage = (
@@ -138,14 +136,11 @@ function UserList({ users }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                console.log(json);
                 json.success ? (router.replace(router.asPath), setOpen(true)) : null
             })
     }
 
     const requestSearch = (searchedVal: string) => {
-        console.log(searchedVal);
-
         const filteredRows = users.filter((row) => {
             return row.name.toLowerCase().includes(searchedVal.toLowerCase());
         });

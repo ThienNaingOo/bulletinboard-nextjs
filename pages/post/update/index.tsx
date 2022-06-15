@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router'
-import connectMongo from '../../utils/dbConnect'
+import connectMongo from '../../../utils/dbConnect'
 import mongoose from "mongoose";
 import Switch from '@mui/material/Switch';
 
@@ -18,7 +18,6 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
 function PostEdit({ postData }) {
-    const [confirm, setConfirm] = useState(false)
     const [title, setTitle] = useState(postData.title)
     const [description, setDescription] = useState(postData.description);
     const [status, setStatus] = useState(postData.status == '0' ? false : true)
@@ -28,19 +27,30 @@ function PostEdit({ postData }) {
     const router = useRouter();
 
     useEffect(() => {
+        // if (postData._id == undefined) {
+        //     setTitle(postData.title);
+        //     setDescription(postData.description);
+        //     setStatus(postData.status)
+        // }
         setUserID(session?.user.id);
-        console.log(postData);
+        router.beforePopState(({ as }) => {
+            if (as !== router.asPath) {
+                router.replace('/post')
+            }
+            return true;
+        });
 
-    }, [])
+        return () => {
+            router.beforePopState(() => true);
+        };
+    }, [router])
 
     const confirmPostCreate = (event) => {
         event.preventDefault();
-        console.log(title, description);
-        setConfirm(true)
-    }
-
-    const cancleEvent = () => {
-        setConfirm(false)
+        // router.push({ pathname: '/post/update/confirm', query: { title: title, description: description, post_id: postData._id, status: status } })
+        // console.log(title, description);
+        // setConfirm(true)
+        confirmEvent()
     }
 
     const confirmEvent = async () => {
@@ -51,8 +61,6 @@ function PostEdit({ postData }) {
             status: status ? 1 : 0,
             updated_user_id: userID ? userID : "",
         }
-        console.log(body);
-
         fetch("http://localhost:3000/api/post/update", {
             method: "PUT",
             headers: {
@@ -63,7 +71,6 @@ function PostEdit({ postData }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                console.log(json);
                 setOpen(true)
                 router.back()
             })
@@ -79,7 +86,7 @@ function PostEdit({ postData }) {
             <div className="container my-5">
                 <div className="row justify-content-center mt-5">
                     <label className="col-md-6 col-form-label text-md-start">{open}</label>
-                    {confirm ?
+                    {/* {confirm ?
                         <div className="col-md-8">
                             <div className="row mb-3">
                                 <h4 className='text-info mb-2'>Update Post Confirmation</h4>
@@ -109,40 +116,39 @@ function PostEdit({ postData }) {
                                 </div>
                             </div>
                         </div>
-                        :
-                        <div className="col-md-8">
-                            <div className="row mb-3"><h4 className='text-info mb-2'>Create Post</h4></div>
-                            <form onSubmit={confirmPostCreate}>
-                                <div className="row mb-4">
-                                    <label className="col-md-4 col-form-label text-md-start">Title</label>
-                                    <input id="title" value={title} type="text" className="col-md-6 col-form-label text-md-start" name="title" required autoComplete="text"
-                                        onChange={(e) => setTitle(e.target.value)} />
+                        : */}
+                    <div className="col-md-8">
+                        <div className="row mb-3"><h4 className='text-info mb-2'>Create Post</h4></div>
+                        <form onSubmit={confirmPostCreate}>
+                            <div className="row mb-4">
+                                <label className="col-md-4 col-form-label text-md-start">Title</label>
+                                <input id="title" value={title} type="text" className="col-md-6 col-form-label text-md-start" name="title" required autoComplete="text"
+                                    onChange={(e) => setTitle(e.target.value)} />
+                            </div>
+                            <div className="row mb-4">
+                                <label className="col-md-4 col-form-label text-md-start">Description</label>
+                                <textarea id='description' value={description} className="col-md-6 col-form-label text-md-start" rows={5} required autoComplete="text"
+                                    onChange={e => setDescription(e.target.value)} />
+                            </div>
+                            <div className="row">
+                                <label className="col-md-4 col-form-label text-md-start">Status</label>
+                                <div className="col-md-6 col-form-label ps-0">
+                                    <Switch className="text-md-start" color="info" {...label} checked={status} onChange={e => setStatus(e.target.checked)} />
                                 </div>
-                                <div className="row mb-4">
-                                    <label className="col-md-4 col-form-label text-md-start">Description</label>
-                                    <textarea id='description' value={description} className="col-md-6 col-form-label text-md-start" rows={5} required autoComplete="text"
-                                        onChange={e => setDescription(e.target.value)} />
-                                </div>
-                                <div className="row">
-                                    <label className="col-md-4 col-form-label text-md-start">Status</label>
-                                    <div className="col-md-6 col-form-label ps-0">
-                                        <Switch className="text-md-start" color="info" {...label} checked={status} onChange={e => setStatus(e.target.checked)} />
-                                    </div>
-                                </div>
+                            </div>
 
-                                <div className="row mt-3">
-                                    <div className="col-md-10 text-md-start">
-                                        <button type="submit" className="col btn btn-info text-white me-4 search-btn">
-                                            Confirm
-                                        </button>
-                                        <button type="reset" className="col btn btn-outline-info mx-4 search-btn">
-                                            Clear
-                                        </button>
-                                    </div>
+                            <div className="row mt-3">
+                                <div className="col-md-10 text-md-start">
+                                    <button type="submit" className="col btn btn-info text-white me-4 search-btn">
+                                        Confirm
+                                    </button>
+                                    <button type="reset" className="col btn btn-outline-info mx-4 search-btn">
+                                        Clear
+                                    </button>
                                 </div>
-                            </form>
-                        </div>
-                    }
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
             <Snackbar open={open} autoHideDuration={6000}>
@@ -163,24 +169,35 @@ export const getServerSideProps = async (context) => {
                 destination: '/'
             }
         }
-    } else {
-        await connectMongo();
-        const postData: any = await mongoose.model('Post').findOne({ _id: context.query.postId })
-        console.log(postData);
-
-        if (session.user.id === postData.created_user_id + "") {
-            return {
-                props: {
-                    postData: JSON.parse(JSON.stringify(postData))
+    } else {        
+        if (context.query.postId !== undefined) {
+            try {
+                await connectMongo();
+                const postData: any = await mongoose.model('Post').findOne({ _id: context.query.postId })
+                if (session.user.id === postData.created_user_id + "") {
+                    return {
+                        props: {
+                            postData: JSON.parse(JSON.stringify(postData))
+                        }
+                    }
+                } else {
+                    return {
+                        redirect: {
+                            permanent: false,
+                            destination: '/'
+                        }
+                    }
+                }
+            } catch (error) {
+                return {
+                    redirect: {
+                        permanent: false,
+                        destination: '/'
+                    }
                 }
             }
-        } else {
-            return {
-                redirect: {
-                    permanent: false,
-                    destination: '/'
-                }
-            }
+        } else return {
+            props: { postData: context.query }
         }
     }
 }

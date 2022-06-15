@@ -12,7 +12,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function PostCreate({data}) {
+function PostCreate({ data }) {
     const title = data.title
     const description = data.description
     const { data: session }: any = useSession();
@@ -22,7 +22,17 @@ function PostCreate({data}) {
 
     useEffect(() => {
         setUserID(session?.user.id);
-    })
+        router.beforePopState(({ as }) => {
+            if (as !== router.asPath) {                
+                router.replace('/post/add?title=' + title + '&description=' + description)
+                return true;
+            } else return false
+        });
+
+        return () => {
+            router.beforePopState(() => true);
+        };
+    }, [router])
 
     const cancleEvent = () => {
         router.back()
@@ -33,8 +43,8 @@ function PostCreate({data}) {
             title: title,
             description: description,
             created_user_id: userID ? userID : "",
+            created_at: Date.now()
         }
-        console.log(body);
 
         fetch("http://localhost:3000/api/post/create", {
             method: "POST",
@@ -46,9 +56,8 @@ function PostCreate({data}) {
         })
             .then((response) => response.json())
             .then((json) => {
-                console.log(json);
                 setOpen(true)
-                router.back()
+                router.replace('/post')
             })
     }
 
@@ -61,7 +70,6 @@ function PostCreate({data}) {
             <Header></Header>
             <div className="container my-5">
                 <div className="row justify-content-center mt-5">
-                    <label className="col-md-6 col-form-label text-md-start">{open}</label>
                     <div className="col-md-8">
                         <div className="row mb-3">
                             <h4 className='text-info mb-2'>Create Post Confirmation</h4>

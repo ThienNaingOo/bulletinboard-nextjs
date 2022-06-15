@@ -48,7 +48,6 @@ function PasswordChange() {
         })
             .then((response) => response.json())
             .then((json) => {
-                console.log(json);
                 json.success ? (setOpen(true), router.replace("/")): seterrOpen(true)
 
             }).catch((error)=> console.error(error))

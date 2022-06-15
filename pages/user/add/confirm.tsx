@@ -32,15 +32,26 @@ function UserCreateConfirm({data}) {
 
     useEffect(() => {
         setUserID(session?.user.id);
-    })
+        router.beforePopState(({ as }) => {
+            if (as !== router.asPath) {                
+                router.replace('/user/add?name=' + name + '&email=' + email+ '&password=' + password+ '&type=' + type
+                + '&phone=' + phone + '&dob=' + dob + '&address=' + address + '&file=' + image + '&createObjectURL=' + createObjectURL)
+                return true;
+            } else return false
+        });
+
+        return () => {
+            router.beforePopState(() => true);
+        };
+    }, [router])
 
     const confirmUserCreate = (event) => {
         event.preventDefault();
         // setConfirm(true)
     }
 
-    const clearEvent = () => {
-        // setConfirm(false)
+    const cancleEvent = () => {
+        router.back()
     }
 
     const confirmEvent = async () => {
@@ -48,7 +59,8 @@ function UserCreateConfirm({data}) {
         body.append("name", name);
         body.append("email", email);
         body.append("password", password);
-        body.append("file", image);
+        body.append("file", createObjectURL);
+        body.append("filename", image);
         body.append("type", type);
         body.append("phone", phone);
         body.append("dob", dob);
@@ -64,18 +76,9 @@ function UserCreateConfirm({data}) {
             .then((response) => response.json())
             .then((json) => {
                 setOpen(true)
-                router.back()
+                router.replace('/user/list')
             })
     }
-
-    const uploadToClient = (event) => {
-        if (event.target.files && event.target.files[0]) {
-            const i = event.target.files[0];
-
-            setImage(i);
-            setCreateObjectURL(URL.createObjectURL(i))
-        }
-    };
 
     const handleClose = () => {
         setOpen(false);
@@ -90,8 +93,8 @@ function UserCreateConfirm({data}) {
                         <div className="row mb-3">
                             <h4 className='text-info mb-2'>Create User Confirmation</h4>
                         </div>
-                        <Image className="row mb-3" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
-                        <div className="row mb-3">
+                        <Image className="row mb-0" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
+                        <div className="row my-3">
                             <label className="col-md-3 col-form-label text-md-start">Name</label>
                             <label className="col-md-7 col-form-label text-md-start">{name}</label>
                         </div>
@@ -124,7 +127,7 @@ function UserCreateConfirm({data}) {
                                 <button type="button" className="col btn btn-info text-white me-4 search-btn" onClick={confirmEvent}>
                                     Create
                                 </button>
-                                <button type="button" className="col btn btn-outline-info mx-4 search-btn" onClick={clearEvent}>
+                                <button type="button" className="col btn btn-outline-info mx-4 search-btn" onClick={cancleEvent}>
                                     Cancle
                                 </button>
                             </div>
@@ -142,9 +145,6 @@ function UserCreateConfirm({data}) {
 }
 
 export const getServerSideProps = async (context) => {
-    // const session: any = await getSession(ctx)    
-    // await connectMongo();
-    // const user = await Users.findOne({ _id: session?.user?.id })
     return {
         props: {
             data: context.query

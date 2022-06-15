@@ -10,11 +10,11 @@ export const config = {
     }
 };
 
-const saveFile = async (file) => {
-    const data = await fs.readFile(file.filepath + "");
-    fs.writeFile(`./public/${file.originalFilename}`, data);
-    await fs.unlink(file.filepath);
-    return "/" + file.originalFilename;
+const saveFile = async (file, filename) => {
+    const data = await fs.readFile(`./public${file}`);
+    fs.writeFile(`./public/profile/${filename}`, data);
+    await fs.unlink(`./public${file}`);
+    return "/profile/" + filename;
 };
 
 
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
             const form = new IncomingForm();
             await form.parse(req, async function (err, fields, files) {
                 let hashedPassword = await bcrypt.hash(fields.password, salt);
-                const profile = await saveFile(files.file);
+                const profile = await saveFile(fields.file,fields.filename);
                 const data = {
                     name: fields.name,
                     email: fields.email,
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
                     created_user_id: fields.created_user_id,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toDateString()
-                }
+                }                
                 const user = await User.create(data)
                 res.json({ user })
             });

@@ -1,7 +1,5 @@
 import Header from '../components/Header'
-import connectMongo from '../../utils/dbConnect'
-import Posts from '../../models/post.model'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { format } from 'date-fns';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -111,7 +109,7 @@ function Post({ posts }) {
     const [searchValue, setSearchValue] = useState('');
     const router = useRouter();
     const { data: session }: any = useSession();
-    const [open, setOpen] = useState(false);
+    // const [open, setOpen] = useState(false);
     const [success, setsuccess] = useState(false);
     const [postRow, setpostRow] = useState(posts);
     const [alertopen, setAlertOpen] = React.useState(false);
@@ -151,18 +149,9 @@ function Post({ posts }) {
     ) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-    };
-
-    const seachAction = () => {
-        requestSearch(searchValue)
-    }
-
-    const handleClose = () => {
-        setOpen(false);
     }
 
     const deleteAction = async (id: any) => {
-        console.log(id);
         const body = { post_id: id, user_id: session?.user.id }
 
         fetch("http://localhost:3000/api/post/delete", {
@@ -175,7 +164,6 @@ function Post({ posts }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                console.log(json);
                 json.success ? (
                     setTimeout(() => {
                         router.reload()
@@ -218,8 +206,6 @@ function Post({ posts }) {
     }
 
     const handleFileUpload = (e) => {
-        console.log("file selector!!!");
-
         if (!e.target.files) {
             return;
         }
@@ -231,8 +217,6 @@ function Post({ posts }) {
     const handleAlertOk = () => {
         setAlertOpen(false);
         let body = new FormData();
-        console.log(userID);
-
         body.append("user_id", userID);
         body.append("file", file);
         fetch("http://localhost:3000/api/post/upload/csv", {
@@ -319,7 +303,7 @@ function Post({ posts }) {
                                         <TableCell align="left">
                                             {
                                                 session?.user.id == data.created_user_id._id ?
-                                                    <button type="button" className="btn btn-info text-white m-0 search-btn" onClick={() => router.push({ pathname: "/post/edit", query: { postId: data._id } })}>
+                                                    <button type="button" className="btn btn-info text-white m-0 search-btn" onClick={() => router.push({ pathname: "/post/update", query: { postId: data._id } })}>
                                                         Edit
                                                     </button>
                                                     : null
