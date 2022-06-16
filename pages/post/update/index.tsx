@@ -27,11 +27,13 @@ function PostEdit({ postData }) {
     const router = useRouter();
 
     useEffect(() => {
-        // if (postData._id == undefined) {
-        //     setTitle(postData.title);
-        //     setDescription(postData.description);
-        //     setStatus(postData.status)
-        // }
+        if (!postData.hasOwnProperty('_id')) {
+            setTitle(postData.title);
+            setDescription(postData.description);
+            setStatus(postData.status==='true')
+        }
+        console.log('useeffect', postData.hasOwnProperty('_id'));
+
         setUserID(session?.user.id);
         router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
@@ -47,10 +49,10 @@ function PostEdit({ postData }) {
 
     const confirmPostCreate = (event) => {
         event.preventDefault();
-        // router.push({ pathname: '/post/update/confirm', query: { title: title, description: description, post_id: postData._id, status: status } })
+        router.push({ pathname: '/post/update/confirm', query: { title: title, description: description, post_id: postData._id, status: status } })
         // console.log(title, description);
         // setConfirm(true)
-        confirmEvent()
+        // confirmEvent()
     }
 
     const confirmEvent = async () => {
@@ -169,7 +171,9 @@ export const getServerSideProps = async (context) => {
                 destination: '/'
             }
         }
-    } else {        
+    } else {
+        console.log(context.query.postId !== undefined);
+
         if (context.query.postId !== undefined) {
             try {
                 await connectMongo();

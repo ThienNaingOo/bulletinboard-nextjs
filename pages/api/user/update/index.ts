@@ -9,11 +9,11 @@ export const config = {
     }
 };
 
-const saveFile = async (file) => {
-    const data = await fs.readFile(file.filepath + "");
-    fs.writeFile(`./public/profile/${file.originalFilename}`, data);
-    await fs.unlink(file.filepath);
-    return "/profile/" + file.originalFilename;
+const saveFile = async (file, filename) => {
+    const data = await fs.readFile(`./public${file}`);
+    fs.writeFile(`./public/profile/${filename}`, data);
+    await fs.unlink(`./public${file}`);
+    return "/profile/" + filename;
 };
 
 export default async function handler(req, res) {
@@ -22,7 +22,8 @@ export default async function handler(req, res) {
             await connectMongo();
             const form = new IncomingForm();
             await form.parse(req, async function (err, fields, files) {
-                const profile = (fields.is_profileupdate === 'true')? fields.profile: await saveFile(files.file);
+                //await saveFile(fields.file,fields.filename);
+                const profile = (fields.is_profileupdate === 'false')? fields.profile: await saveFile(fields.file,fields.filename);
                 const filter = { _id: fields.id }
                 const update = {
                     name: fields.name,
@@ -34,7 +35,7 @@ export default async function handler(req, res) {
                     address: fields.address,
                     updated_user_id: fields.updated_user_id,
                     updatedAt: new Date().toDateString()
-                }                
+                }
                 const user = await User.findOneAndUpdate(filter, update, {
                     new: true,
                     upsert: true

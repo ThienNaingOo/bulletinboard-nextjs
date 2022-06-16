@@ -1,4 +1,4 @@
-import connectMongo from './../../utils/dbConnect';
+import connectMongo from '../../utils/dbConnect';
 import Users from '../../models/user.model';
 import Header from 'pages/components/Header';
 import { useRouter } from 'next/router';
@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 function UserDetail({ data }) {
     const router = useRouter();
     const lazyRoot = React.useRef(null);
-    const [createObjectURL, setCreateObjectURL] = useState(data.profile ? data.profile : "");
+    const [createObjectURL, setCreateObjectURL] = useState(data.profile ? data.profile : "/common/profile.png");
 
     return (
         <div>
@@ -22,8 +22,8 @@ function UserDetail({ data }) {
                             <div className="card-header bg-info"><h4 className='text-white'>User Details</h4></div>
 
                             <div className="card-body">
-                            <Image className="row mb-3" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
-                                <div className="row">
+                            <Image className="row" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
+                                <div className="row mt-3">
                                     <label className="col-md-4 col-form-label text-md-start">Name</label>
                                     <label className="col-md-6 col-form-label text-md-start">{data.name}</label>
                                 </div>
@@ -53,7 +53,7 @@ function UserDetail({ data }) {
                                 </div>
                                 <div className="row mt-3">
                                     <div className="col-md-10 text-md-end">
-                                        <button className="col btn btn-info text-white mx-4 search-btn" onClick={() => router.push({ pathname: '/user/edit', query: { userId: data._id } })}>
+                                        <button className="col btn btn-info text-white mx-4 search-btn" onClick={() => router.push({ pathname: '/user/update', query: { userId: data._id } })}>
                                             Edit
                                         </button>
                                     </div>

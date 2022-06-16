@@ -48,7 +48,7 @@ function Profile({ data }) {
                                 </div>
                                 <div className="row mt-3">
                                     <div className="col-md-10 text-md-end">
-                                        <button className="col btn btn-info text-white mx-4 search-btn" onClick={() => router.push({ pathname: '/user/edit', query: { userId: data._id } })}>
+                                        <button className="col btn btn-info text-white mx-4 search-btn" onClick={() => router.push({ pathname: '/user/update', query: { userId: data._id } })}>
                                             Edit
                                         </button>
                                     </div>

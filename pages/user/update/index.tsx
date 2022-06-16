@@ -5,7 +5,7 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import connectMongo from '../../utils/dbConnect'
+import connectMongo from '../../../utils/dbConnect'
 import { format } from 'date-fns';
 import User from "models/user.model";
 import Link from 'next/link';
@@ -30,54 +30,68 @@ function UserUpdate({ userData }) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const [image, setImage] = useState("");
-    const userprofile = userData.profile;
+    const [userprofile, setuserprofile] = useState(userData.profile ? userData.profile : "/common/profile.png");
     const [createObjectURL, setCreateObjectURL] = useState(userData.profile ? userData.profile : "/common/profile.png");
     const lazyRoot = React.useRef(null);
+    const [filename, setfilename] = useState(userData.profile)
+    const [oldimg, setoldimg] = useState(userData.profile)
 
     useEffect(() => {
         setUserID(session?.user.id);
-
+        console.log(userData);
+        if (!userData.hasOwnProperty('password')) {
+            setname(userData.name)
+            setemail(userData.email)
+            setphone(userData.phone)
+            setdob(format(new Date(userData.dob), 'yyyy-MM-dd'))
+            setaddress(userData.address)
+            setfilename(userData.file)
+            setCreateObjectURL(userData.filepath)
+            setuserprofile(userData.filepath)
+            setoldimg(userData.oldimg)
+        }
     })
 
     const confirmUserUpdate = (event) => {
         event.preventDefault();
         // (password !== confirmpwd) ? alert("Password are not same.") :
         // setConfirm(true)
-        confirmEvent(userprofile == createObjectURL)
+        // confirmEvent(userprofile == createObjectURL)
+        fileSaveToTemp()
     }
 
 
-    const confirmEvent = async (is_update) => {
-        let body = new FormData();
-        body.append("id", userData._id);
-        body.append("name", name);
-        body.append("email", email);
-        body.append("profile", userprofile);
-        body.append("file", image);
-        body.append("type", type);
-        body.append("phone", phone);
-        body.append("dob", dob);
-        body.append("address", address);
-        body.append("updated_user_id", userID);
-        body.append("is_profileupdate", is_update);
+    // const confirmEvent = async (is_update) => {
+    //     let body = new FormData();
+    //     body.append("id", userData._id);
+    //     body.append("name", name);
+    //     body.append("email", email);
+    //     body.append("profile", userprofile);
+    //     body.append("file", image);
+    //     body.append("type", type);
+    //     body.append("phone", phone);
+    //     body.append("dob", dob);
+    //     body.append("address", address);
+    //     body.append("updated_user_id", userID);
+    //     body.append("is_profileupdate", is_update);
 
-        fetch("http://localhost:3000/api/user/update", {
-            method: "POST",
-            headers: {
-            },
-            body: body
-        })
-            .then((response) => response.json())
-            .then((json) => {
-                setOpen(true)
-                router.replace('/user/list')
-            })
-    }
+    //     fetch("http://localhost:3000/api/user/update", {
+    //         method: "POST",
+    //         headers: {
+    //         },
+    //         body: body
+    //     })
+    //         .then((response) => response.json())
+    //         .then((json) => {
+    //             setOpen(true)
+    //             router.replace('/user/list')
+    //         })
+    // }
 
     const uploadToClient = (event) => {
         if (event.target.files && event.target.files[0]) {
             const i = event.target.files[0];
-
+            setfilename(i.name)
             setImage(i);
             setCreateObjectURL(URL.createObjectURL(i))
         }
@@ -85,6 +99,25 @@ function UserUpdate({ userData }) {
 
     const handleClose = () => {
         setOpen(false);
+    }
+
+    const fileSaveToTemp = () => {
+        console.log(userprofile, createObjectURL);
+
+        if (userprofile !== createObjectURL) {
+            let body = new FormData();
+            body.append("file", image);
+            fetch("http://localhost:3000/api/user/savefile", {
+                method: "PUT",
+                headers: {
+                },
+                body: body
+            })
+                .then((response) => response.json())
+                .then((json) => {
+                    router.push({ pathname: '/user/update/confirm', query: { id: userData._id, name: name, email: email, type: type, phone: phone, dob: dob, file: json.data.name, createObjectURL: json.data.path, address: address, oldimg: oldimg } })
+                })
+        } else router.push({ pathname: '/user/update/confirm', query: { id: userData._id, name: name, email: email, type: type, phone: phone, dob: dob, file: filename, createObjectURL: createObjectURL, address: address, oldimg: oldimg } })
     }
 
     return (
@@ -186,8 +219,9 @@ function UserUpdate({ userData }) {
                             </div>
                             <div className="row mb-3">
                                 <label className="col-md-3 col-form-label text-md-start">Profile</label>
-                                <input id="profile" type="file" className="col-md-7 col-form-label ps-0 text-md-start" name="profile"
+                                <input id="profile" type="file" style={{ width: '100px' }} className="col-md-3 col-form-label ps-0 text-md-start" name="profile"
                                     onChange={e => uploadToClient(e)} />
+                                <label className="col-md-6 col-form-label text-md-start">{filename? filename: 'No file Choosen.'}</label>
                             </div>
                             <div className="row mb-3">
                                 <Link href="/user/changepassword">
@@ -228,20 +262,26 @@ export const getServerSideProps = async (context) => {
             }
         }
     } else {
-        try {
-            await connectMongo();
-            const data = await User.findOne({ _id: context.query.userId })
-            return {
-                props: {
-                    userData: JSON.parse(JSON.stringify(data)),
+        if (context.query.hasOwnProperty('userId')) {
+            try {
+                await connectMongo();
+                const data = await User.findOne({ _id: context.query.userId })
+                return {
+                    props: {
+                        userData: JSON.parse(JSON.stringify(data)),
+                    }
+                }
+            } catch (error) {
+                return {
+                    redirect: {
+                        permanent: false,
+                        destination: '/'
+                    }
                 }
             }
-        } catch (error) {
-            return {
-                redirect: {
-                    permanent: false,
-                    destination: '/'
-                }
+        } else return {
+            props: {
+                userData: context.query,
             }
         }
     }

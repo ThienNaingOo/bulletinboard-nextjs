@@ -103,8 +103,6 @@ function UserCreate({ data }) {
 
     const fileSaveToTemp = () => {
         if (tempname !== filename) {
-
-        
         let body = new FormData();
         body.append("file", image);
         fetch("http://localhost:3000/api/user/savefile", {
