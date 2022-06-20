@@ -60,6 +60,17 @@ function UserUpdate({ userData }) {
         fileSaveToTemp()
     }
 
+    const clearEvent = () => {
+        setname('');
+        setemail('');
+        settype('');
+        setphone('');
+        setdob('');
+        setaddress('');
+        setfilename('');
+        setCreateObjectURL('/common/profile.png');
+    }
+
 
     // const confirmEvent = async (is_update) => {
     //     let body = new FormData();
@@ -234,7 +245,7 @@ function UserUpdate({ userData }) {
                                     <button type="submit" className="col btn btn-info text-white me-4 search-btn">
                                         Confirm
                                     </button>
-                                    <button type="reset" className="col btn btn-outline-info mx-4 search-btn">
+                                    <button type="reset" onClick={clearEvent} className="col btn btn-outline-info mx-4 search-btn">
                                         Clear
                                     </button>
                                 </div>

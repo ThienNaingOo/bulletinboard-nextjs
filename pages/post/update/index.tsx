@@ -30,7 +30,7 @@ function PostEdit({ postData }) {
         if (!postData.hasOwnProperty('_id')) {
             setTitle(postData.title);
             setDescription(postData.description);
-            setStatus(postData.status==='true')
+            setStatus(postData.status === 'true')
         }
         console.log('useeffect', postData.hasOwnProperty('_id'));
 
@@ -53,6 +53,12 @@ function PostEdit({ postData }) {
         // console.log(title, description);
         // setConfirm(true)
         // confirmEvent()
+    }
+
+    const clearEvent = () => {
+        setTitle('');
+        setDescription("");
+        setStatus(true);
     }
 
     const confirmEvent = async () => {
@@ -144,7 +150,7 @@ function PostEdit({ postData }) {
                                     <button type="submit" className="col btn btn-info text-white me-4 search-btn">
                                         Confirm
                                     </button>
-                                    <button type="reset" className="col btn btn-outline-info mx-4 search-btn">
+                                    <button type="reset" onClick={clearEvent} className="col btn btn-outline-info mx-4 search-btn">
                                         Clear
                                     </button>
                                 </div>

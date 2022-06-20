@@ -55,12 +55,21 @@ function UserCreate({ data }) {
 
     const confirmUserCreate = (event) => {
         event.preventDefault();
-        fileSaveToTemp()
+        (password === confirmpwd)? fileSaveToTemp(): alert("password and confirmed password are not same.")
     }
 
-    // const clearEvent = () => {
-    //     setConfirm(false)
-    // }
+    const clearEvent = () => {
+        setname('');
+        setemail('');
+        setpassword('');
+        setconfirmpwd('');
+        settype('');
+        setphone('');
+        setdob('');
+        setaddress('');
+        setfilename('');
+        setCreateObjectURL('');
+    }
 
     // const confirmEvent = async () => {
     //     let body = new FormData();
@@ -141,6 +150,8 @@ function UserCreate({ data }) {
                             <div className="row mb-3">
                                 <label className="col-md-3 col-form-label text-md-start">Password</label>
                                 <input id="password" type="password" className="col-md-7 col-form-label text-md-start" name="password" required autoComplete="password"
+                                    minLength={6} maxLength={12}
+                                    title="Password length could be 6 to 12."
                                     onChange={e => setpassword(e.target.value)} value={password} />
                             </div>
                             <div className="row mb-3">
@@ -184,7 +195,7 @@ function UserCreate({ data }) {
                                     <button type="submit" className="col btn btn-info text-white me-4 search-btn">
                                         Confirm
                                     </button>
-                                    <button type="reset" className="col btn btn-outline-info mx-4 search-btn">
+                                    <button onClick={clearEvent} className="col btn btn-outline-info mx-4 search-btn">
                                         Clear
                                     </button>
                                 </div>
