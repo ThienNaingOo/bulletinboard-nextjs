@@ -1,7 +1,7 @@
 import connectMongo from './../../utils/dbConnect';
 import Users from '../../models/user.model';
 import { getSession } from "next-auth/react";
-import Header from 'pages/components/Header';
+import Header from 'components/Header';
 import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 

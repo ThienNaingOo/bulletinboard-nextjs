@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import Header from 'pages/components/Header';
+import Header from 'components/Header';
 import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';

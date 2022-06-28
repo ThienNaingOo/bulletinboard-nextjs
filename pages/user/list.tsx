@@ -1,4 +1,4 @@
-import Header from './../components/Header';
+import Header from '../../components/Header';
 import connectMongo from './../../utils/dbConnect';
 import Users from '../../models/user.model';
 import React, { useEffect, useState } from 'react';
