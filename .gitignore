@@ -9,8 +9,8 @@
 /coverage
 
 #public
-/.temp/
-/profile/
+/public/.temp/
+/public/profile/
 
 # next.js
 /.next/
