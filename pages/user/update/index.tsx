@@ -103,6 +103,8 @@ function UserUpdate({ userData }) {
         if (event.target.files && event.target.files[0]) {
             const i = event.target.files[0];
             setfilename(i.name)
+            console.log(i);
+            
             setImage(i);
             setCreateObjectURL(URL.createObjectURL(i))
         }

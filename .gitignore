@@ -8,6 +8,10 @@
 # testing
 /coverage
 
+#public
+/.temp/
+/profile/
+
 # next.js
 /.next/
 /out/
