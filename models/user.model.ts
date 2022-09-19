@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
             required: true,
             min: 6,
             max: 255,
-            select: true,
+            select: false,
         },
         profile: {
             type: String,

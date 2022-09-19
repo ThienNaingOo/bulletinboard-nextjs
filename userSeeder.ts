@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 dotenv.config({
   path: __dirname + "/.env.local",
 });
+
 const MONGODB_URI =
   typeof process.env.DB_URI === "string" ? process.env.DB_URI : "";
 let saltWorkFactor = parseInt(process.env.SALT_WORK_FACTOR || "10") as number;

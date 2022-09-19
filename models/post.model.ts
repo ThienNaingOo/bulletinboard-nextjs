@@ -33,6 +33,7 @@ const postSchema = new mongoose.Schema(
         created_user_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
+            select: false
         },
         updated_user_id: {
             type: mongoose.Schema.Types.ObjectId,
@@ -56,6 +57,15 @@ const postSchema = new mongoose.Schema(
         }
     }
 );
+postSchema.virtual('postedBy', {
+    justOne: true,
+    localField: 'created_user_id',
+    foreignField: '_id',
+    ref: 'User'
+})
+
+postSchema.set('toObject', { virtuals: true });
+postSchema.set('toJSON', { virtuals: true });
 
 interface IPostDoc extends IPost, Document { }
 
