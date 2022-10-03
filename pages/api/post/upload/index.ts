@@ -14,27 +14,6 @@ export const config = {
     }
 };
 
-// const saveFile = async (file) => {
-//     fs.readFile(file.filepath + "", 'utf8').then((data) => {
-//         Papa.parse(data, {
-//             step: function (row) {
-//                 console.log("Row:", row.data);
-//             }
-//         });
-//     }).catch((error) => console.log(error)
-//     )
-// };
-
-
-// export default async function handler(req, res) {
-
-//     if (req.method === 'POST') {
-
-//     } else {
-//         res.status(422).send('req_method_not_supported');
-//     }
-// }
-
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
         res.status(501).json({ message: `${err.message}` });

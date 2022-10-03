@@ -26,7 +26,6 @@ function PostUpdateConfirm({ data }) {
 
     useEffect(() => {
         setUserID(session?.user.id);
-        console.log(data);
         
         router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
@@ -52,8 +51,6 @@ function PostUpdateConfirm({ data }) {
             status: status ? 1 : 0,
             updated_user_id: userID ? userID : "",
         }
-        console.log(body);
-
         fetch("http://localhost:3000/api/post/update", {
             method: "PUT",
             headers: {
@@ -64,7 +61,6 @@ function PostUpdateConfirm({ data }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                console.log(json);
                 setOpen(true)
                 router.replace('/post')
             })

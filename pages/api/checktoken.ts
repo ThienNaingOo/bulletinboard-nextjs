@@ -21,9 +21,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         let token: any = req.headers['authorization'];
         if (req.headers['authorization']) {
             let tk = token.split(" ")[1]
-            const user_data: any = jwt.verify(tk, KEY)
-            console.log(user_data);
-            
+            const user_data: any = jwt.verify(tk, KEY)            
             const filter = { user_id: user_data.id }
             await connectMongo()
             Token.findOne(filter).then((data) => {                

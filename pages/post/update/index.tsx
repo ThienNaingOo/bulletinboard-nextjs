@@ -32,8 +32,6 @@ function PostEdit({ postData }) {
             setDescription(postData.description);
             setStatus(postData.status === 'true')
         }
-        console.log('useeffect', postData.hasOwnProperty('_id'));
-
         setUserID(session?.user.id);
         router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
@@ -178,8 +176,6 @@ export const getServerSideProps = async (context) => {
             }
         }
     } else {
-        console.log(context.query.postId !== undefined);
-
         if (context.query.postId !== undefined) {
             try {
                 await connectMongo();

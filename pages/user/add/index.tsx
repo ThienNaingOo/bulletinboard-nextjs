@@ -99,9 +99,7 @@ function UserCreate({ data }) {
     const uploadToClient = (event) => {
         if (event.target.files && event.target.files[0]) {
             const i = event.target.files[0];
-            setfilename(i.name)
-            console.log(i);
-            
+            setfilename(i.name)            
             setImage(i);
             setCreateObjectURL(URL.createObjectURL(i))
         }

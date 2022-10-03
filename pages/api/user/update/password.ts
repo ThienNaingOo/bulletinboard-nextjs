@@ -13,34 +13,6 @@ export const config = {
     }
 };
 
-// export default async function handler(req, res) {
-
-//     let saltWorkFactor = parseInt("10") as number;
-//     let salt = await bcrypt.genSalt(saltWorkFactor);
-
-//     if (req.method === 'POST') {
-//         try {
-//             await connectMongo();
-//             let hashedPassword = await bcrypt.hash(req.body.newpassword, salt);
-//             const filter = { _id: req.body.id }
-//             const update = { password: hashedPassword };
-//             const user = await User.findOne({ id: req.body.id })
-//             let result = await bcrypt.compare(req.body.oldpassword, user.password)
-//             if (result) {
-//                 const pwdUpdate = await User.findOneAndUpdate(filter, update, {
-//                     new: true,
-//                     upsert: true
-//                 })
-//                 res.status(200).json({ success: true, message: 'Your action is Successed.', data: pwdUpdate })
-//             } else res.status(403).json({success: false, message: 'password is not match'})
-//         } catch (error) {
-//             res.json({ error })
-//         }
-//     } else {
-//         res.status(422).send('req_method_not_supported');
-//     }
-// }
-
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
         res.status(501).json({ message: `${err.message}` });
@@ -60,16 +32,13 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
             let saltWorkFactor = parseInt("10") as number;
             bcrypt.genSalt(saltWorkFactor).then((salt) => {
                 Token.findOne(filter).then((data) => {
-                    console.log(data);
                     if (data) {
                         const form = new IncomingForm();
                         form.parse(req, async function (err, fields, files) {
                             const updateFilter = { _id: data.user_id }
-                            console.log(fields);
                             
                             if (fields.old_password && fields.new_password) {
                                 User.findOne(updateFilter).select('+password').then((userData) => {
-                                    console.log(userData);
                                     
                                     if (userData) {
                                         bcrypt.hash(fields.new_password, salt).then((hashPassword) => {
@@ -82,7 +51,6 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                                         new: true,
                                                         upsert: true
                                                     }).then((data) => {
-                                                        console.log(data);
                                                         
                                                         res.status(200).json({ status: "success", message: 'Your password is successfully updated.'})
                                                     })
