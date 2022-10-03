@@ -3,18 +3,6 @@ import Post from '../../../models/post.model'
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from "next-connect";
 import Token from 'models/token.model';
-import Cors from 'cors';
-import corsMiddleware from 'middleware/corsMiddleware';
-
-const cors = Cors({
-    methods: ['POST', 'GET', 'HEAD'],
-    origin: '*',
-    
-  })
-  var corsOptions = {
-    origin: '*',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-  }
   
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
@@ -26,17 +14,9 @@ const handler = nextConnect({
 })
 // handler.use(corsMiddleware)
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
-//     res.setHeader('Access-Control-Allow-Credentials', 'true')
-//   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8100')
-//   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
-//   res.setHeader(
-//     'Access-Control-Allow-Headers',
-//     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version')
     try {
-        
         let token: any = req.headers?.authorization;
         await connectMongo();
-        console.log(req);
         if (req.headers.authorization) {
             let tk = token.split(" ")[1];
             const filter = { token: tk }

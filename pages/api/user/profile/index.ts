@@ -45,7 +45,6 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
             const filter = { token: tk }
             Token.findOne(filter).then((data) => {
                 if (data) {
-                    console.log(data);
                     User.findOne({ _id: data.user_id })
                         .select('name email phone dob profile address')
                         .then((userfindone) => {
@@ -63,8 +62,6 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     }
 })
 handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
-    console.log();
-    
     try {
         let token: any = req.headers['authorization'];
         await connectMongo();
@@ -78,8 +75,6 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                         const updateFilter = { _id: fields.id }
                         if (fields.name && fields.email && fields.phone) {
                             User.findOne(updateFilter).then((userData) => {
-                                console.log(userData);
-                                
                                 if ((fields.old_profile && fields.old_profile !== null && fields.old_profile !== "") || !files.profile) {
                                     const update = {
                                         name: fields.name,
@@ -95,7 +90,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                         new: true,
                                         upsert: true
                                     }).then((data) => {
-                                        res.status(200).json({ message: 'Your action is Successed.', data: data })
+                                        res.status(200).json({ status: 'success', message: 'Your action is Successed.', data: data })
                                     })
                                 } else {
                                     saveFile(files.profile, userData.profile).then((filereturn) => {
@@ -114,7 +109,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                             new: true,
                                             upsert: true
                                         }).then((data) => {
-                                            res.status(200).json({ message: 'Your action is Successed.', data: data })
+                                            res.status(200).json({ status: 'success', message: 'Your action is Successed.', data: data })
                                         })
                                     })
 

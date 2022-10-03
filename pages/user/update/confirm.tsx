@@ -55,7 +55,6 @@ function UserUpdateConfirm({ data }) {
     }
 
     const confirmEvent = async () => {
-        console.log(updateUserId, name, email, (createObjectURL !== oldimg && createObjectURL !== '/common/profile.png') ? 'true' : 'false', oldimg, createObjectURL, image, type, phone, dob, address, userID);
         let body = new FormData();
         body.append("id", updateUserId);
         body.append("name", name);

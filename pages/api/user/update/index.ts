@@ -16,8 +16,6 @@ export const config = {
 const saveFile = async (file, oldProfile) => {
     if (file) {
         if (oldProfile) {
-            // const data = await fs.readFile(`./public${file}`);
-            // fs.writeFile(`./public/profile/${oldProfile}`, data);
             await fs.unlink(`./public${oldProfile}`);
         }
         const data = await fs.readFile(file.filepath + "");
@@ -87,9 +85,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                             const form = new IncomingForm();
                             form.parse(req, async function (err, fields, files) {
                                 const updateFilter = { _id: fields.id }
-                                User.findOne(updateFilter).then((userData) => {
-                                    console.log(fields);
-                                    
+                                User.findOne(updateFilter).then((userData) => {                                    
                                     if ((fields.old_profile && fields.old_profile !== null && fields.old_profile !== "") || !files.profile) {
                                         const update = {
                                             name: fields.name,

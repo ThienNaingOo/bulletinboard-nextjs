@@ -9,28 +9,6 @@ import { addDays } from 'date-fns';
 import corsMiddleware from 'middleware/corsMiddleware';
 const KEY = typeof process.env.JWT_KEY === "string" ? process.env.JWT_KEY : "4TtdxkvaOb2l70nqONHh6CV7+hsfIgEDCGfZZpFXtE4="
 
-// const tokenValidate = (token, userID) => {
-//     // Token.findOne({ user_id: userID }).then((data) => {
-//         console.log(token, userID);
-
-//     //     if (data) {
-//     const filter = { _id: userID }
-//     const update = { token: token, user_id: userID, created_at: Date.now(), expired_at: addDays(new Date(Date.now()), 30) }
-//     return Token.findOneAndUpdate(filter, update, {
-//         new: true,
-//         upsert: true
-//     })
-//     // } else {
-//     //     let token_data = {
-//     //         token: token,
-//     //         user_id: userID,
-//     //         expired_at: addDays(new Date(Date.now()), 30)
-//     //     }
-//     //     return Token.create(token_data)
-//     // }
-//     // })
-// }
-
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
         res.status(501).json({ message: `${err.message}` });
