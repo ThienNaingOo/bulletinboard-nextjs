@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from "next-connect";
 import Token from 'models/token.model';
 import User from 'models/user.model';
+import corsMiddleware from 'middleware/corsMiddleware';
 
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
@@ -13,13 +14,15 @@ const handler = nextConnect({
         res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
     }
 })
+handler.use(corsMiddleware)
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        let token: any = req.headers['authorization'];
+        let token: any = '';
         await connectMongo();
         let limit = 10; let page: any = req.query.page ? req.query.page : 0;
-        let skip_count = req.query.page ? (page * limit) : 0;
-        if (req.headers['authorization']) {
+        let skip_count = page ? (page * limit) : 0;
+        
+        if (token) {
             let tk = token.split(" ")[1];
             const filter = { token: tk }
             Token.findOne(filter).then((data) => {
@@ -33,7 +36,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
                             let list = postList.filter((e, index) => {
                                 return (data) ? (e.status == 1 || e.created_user_id._id == req.query.id) : (e.status == 1)
                             });
-                            res.status(200).json({ success: true, message: 'Your action is Successed.', query: list, current_page: page })
+                            res.status(200).json({ success: true, message: 'Your action is Successed.', data: list, current_page: page })
                         })
                 } else {
                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
@@ -46,7 +49,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
                 .populate({ path: 'postedBy', model: User, select: 'name type -_id' })
                 .sort({ created_at: -1 })
                 .then((postList) => {
-                    res.status(200).json({ success: true, message: 'Your action is Successed.', query: postList, current_page: page })
+                    res.status(200).json({ success: true, message: 'Your action is Successed.', data: postList, current_page: page })
                 })
         }
     } catch (e: any) {

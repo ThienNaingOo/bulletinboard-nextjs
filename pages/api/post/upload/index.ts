@@ -6,6 +6,7 @@ import Post from 'models/post.model';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import Token from 'models/token.model';
+import corsMiddleware from 'middleware/corsMiddleware';
 
 export const config = {
     api: {
@@ -42,7 +43,7 @@ const handler = nextConnect({
         res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
     }
 })
-
+handler.use(corsMiddleware)
 handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         var counter = 0
@@ -54,26 +55,28 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
             Token.findOne(filter).then((token_data) => {
                 if (token_data) {
                     const form = new IncomingForm();
-                    form.parse(req, async function (err, fields, files) {
-                        await fs.readFile(files?.file?.filepath + "", 'utf8').then((data) => {
 
-                            Papa.parse(data, {
-                                step: function (row) {
-                                    console.log("Row:", row.data);
-                                    if (row.data[0] !== 'title' && row.data[0] !== '') {
-                                        let data = {
-                                            title: row.data[0],
-                                            description: row.data[1],
-                                            created_user_id: token_data.user_id,
+                    form.parse(req, async function (err, fields, files) {
+                        if (files.data_file) {
+                            await fs.readFile(files?.data_file?.filepath + "", 'utf8').then((data) => {
+                                Papa.parse(data, {
+                                    step: function (row) {
+                                        console.log("Row:", row.data);
+                                        if (row.data[0] !== 'title' && row.data[0] !== '') {
+                                            let data = {
+                                                title: row.data[0],
+                                                description: row.data[1],
+                                                created_user_id: token_data.user_id,
+                                            }
+                                            Post.create(data)
+                                            counter++;
                                         }
-                                        Post.create(data)
-                                        counter++;
                                     }
-                                }
-                            });
-                        }).catch((error) => console.log(error)
-                        )
-                        res.status(200).json({ success: true, message: 'Added ' + counter + ' rows!' })
+                                });
+                            }).catch((error) => console.log(error)
+                            )
+                            res.status(200).json({ success: true, message: 'Added ' + counter + ' rows!' })
+                        } else res.status(400).send({ status: 'error', message: 'Missing \'data_file\' parameters.' })
                     });
                 } else res.status(401).send({ status: 'error', message: 'Unauthorized' })
             })

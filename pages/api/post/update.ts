@@ -3,6 +3,7 @@ import Post from '../../../models/post.model'
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import Token from 'models/token.model';
+import corsMiddleware from 'middleware/corsMiddleware';
 
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
@@ -12,7 +13,7 @@ const handler = nextConnect({
         res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
     }
 })
-
+handler.use(corsMiddleware)
 handler.put(async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         let token: any = req.headers['authorization'];
@@ -36,7 +37,7 @@ handler.put(async (req: NextApiRequest, res: NextApiResponse) => {
                             new: true,
                             upsert: true
                         }).then((post) => {
-                            res.status(200).json({ success: true, message: 'Your action is Successed.', details: post })
+                            res.status(200).json({ status: 'success', message: 'Your action is Successed.', data: post })
 
                         })
                     } else {
@@ -72,7 +73,7 @@ export default handler
 //                 new: true,
 //                 upsert: true
 //             })
-//             res.status(200).json({ message: 'Your action is Successed.', query: postUpdate })
+//             res.status(200).json({ message: 'Your action is Successed.', data: postUpdate })
 //         } catch (error) {
 //             res.json({ error })
 //         }

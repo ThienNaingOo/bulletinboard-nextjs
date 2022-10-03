@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from "next-connect";
 import Token from 'models/token.model';
 import User from 'models/user.model';
+import corsMiddleware from 'middleware/corsMiddleware';
 
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
@@ -12,6 +13,7 @@ const handler = nextConnect({
         res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
     }
 })
+handler.use(corsMiddleware)
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         let token: any = req.headers['authorization'];
@@ -23,16 +25,17 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
             const filter = { token: tk }
             Token.findOne(filter).then((data) => {
                 if (data) {
-                    User.find({}, {}, { skip: skip_count, limit: limit })
-                        .select('name email phone dob created_user_id')
-                        .populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' })
-                        .sort({ created_at: -1 })
-                        .then((userList) => {
-                            // let list = userList.filter((e, index) => {
-                            //     return (data) ? (e.status == 1 || e.created_user_id._id == req.query.id) : (e.status == 1)
-                            // });
-                            res.status(200).json({ success: true, message: 'Your action is Successed.', query: userList, current_page: page })
-                        })
+                    User.findOne({ _id: data.user_id }).then((userfindone) => {
+                        if (userfindone.type == 0) {
+                            User.find({}, {}, { skip: skip_count, limit: limit })
+                                .select('name email phone dob created_user_id')
+                                .populate({ path: 'created_user_id', model: User, select: 'name type -_id' })
+                                .sort({ created_at: -1 })
+                                .then((userList) => {
+                                    res.status(200).json({ success: true, data: userList, current_page: page })
+                                })
+                        } else res.status(401).send({ status: 'error', message: 'Unauthorized user Role' })
+                    })
                 } else {
                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
                 }

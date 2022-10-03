@@ -30,9 +30,9 @@ const seedDB = async () => {
       password: hashedPassword,
       type: "0",
       phone: "09400033516",
-      dob: null,
+      dob: "",
       address: "122/124, 4th Quarter, Botahtaung Pagoda Road, Botahtaung Township, Yangon.",
-      profile: "",
+      profile: "/common/app.png",
       createdAt : new Date().toISOString(),
       updatedAt : new Date().toDateString()
     },
@@ -42,9 +42,9 @@ const seedDB = async () => {
       password: hashedPassword,
       type: "1",
       phone: "09400033316",
-      dob: null,
+      dob: "",
       address: "122/124, 4th Quarter, Botahtaung Pagoda Road, Botahtaung Township, Yangon.",
-      profile: "",
+      profile: "/common/app.png",
       createdAt : new Date().toISOString(),
       updatedAt : new Date().toDateString()
     },

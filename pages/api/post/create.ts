@@ -3,6 +3,7 @@ import Post from '../../../models/post.model'
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import Token from 'models/token.model';
+import corsMiddleware from 'middleware/corsMiddleware';
 
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
@@ -12,8 +13,10 @@ const handler = nextConnect({
         res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
     }
 })
-
+handler.use(corsMiddleware)
 handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
+
+    let request = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
     try {
         let token: any = req.headers['authorization'];
         await connectMongo();
@@ -22,7 +25,6 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
             const filter = { token: tk }
             Token.findOne(filter).then((data) => {
                 if (data) {
-                    let request = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
                     if (request.hasOwnProperty('title') && request.hasOwnProperty('description')) {
                         let post_data = {
                             title: request.title,
@@ -30,7 +32,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                             created_user_id: data.user_id
                         }
                         Post.create(post_data).then((post) => {
-                            res.status(200).json({ success: true, message: 'Your action is Successed.', details: post })
+                            res.status(200).json({ status: "success", message: 'Your action is Successed.', details: post })
 
                         })
                     } else {

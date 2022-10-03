@@ -18,7 +18,8 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 });
 
 function UserUpdate({ userData }) {
-
+    console.log(userData);
+    
     const [name, setname] = useState(userData.name)
     const [email, setemail] = useState(userData.email)
     const [type, settype] = useState(userData.type)
@@ -29,10 +30,10 @@ function UserUpdate({ userData }) {
     const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
-    const [image, setImage] = useState("");
-    const [userprofile, setuserprofile] = useState(userData.profile ? userData.profile : "/common/profile.png");
-    const [createObjectURL, setCreateObjectURL] = useState(userData.profile ? userData.profile : "/common/profile.png");
     const lazyRoot = React.useRef(null);
+    const [image, setImage] = useState("");
+    const [userprofile, setuserprofile] = useState(userData.profile ? userData.profile : "/common/app.png");
+    const [createObjectURL, setCreateObjectURL] = useState(userData.profile ? userData.profile : "/common/app.png");
     const [filename, setfilename] = useState(userData.profile)
     const [oldimg, setoldimg] = useState(userData.profile)
 
@@ -183,7 +184,8 @@ function UserUpdate({ userData }) {
                     <div className="col-md-8">
                         <div className="row mb-3"><h4 className='text-info mb-2'>Update User</h4></div>
                         <form onSubmit={confirmUserUpdate}>
-                            <Image className="row" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
+                        <label>{createObjectURL}</label>
+                            <Image className="row" lazyRoot={lazyRoot} src={'/common/app.png'} width="200" height="200" />
                             <div className="row mb-3 mt-5">
                                 <label className="col-md-3 col-form-label text-md-start">Name</label>
                                 <input id="name" type="text" value={name} className="col-md-7 col-form-label text-md-start" name="name" required autoComplete="text"

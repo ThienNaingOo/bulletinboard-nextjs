@@ -3,27 +3,7 @@ import Post from '../../../models/post.model'
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from 'next-connect';
 import Token from 'models/token.model';
-
-// export default async function handler(req, res) {
-
-//     if (req.method === 'DELETE') {
-
-//         try {
-//             await connectMongo();
-//             const filter = { _id: req.body.post_id }
-//             const update = { status: 0, deleted_user_id: req.body.user_id, deleted_at: Date.now() };
-//             const postUpdate = await Post.findOneAndUpdate(filter, update, {
-//                 new: true,
-//                 upsert: true
-//             })
-//             res.status(200).json({ success: true, message: 'Your action is Successed.', query: postUpdate })
-//         } catch (error) {
-//             res.json({ error })
-//         }
-//     } else {
-//         res.status(422).send('req_method_not_supported');
-//     }
-// }
+import corsMiddleware from 'middleware/corsMiddleware';
 
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
@@ -33,8 +13,8 @@ const handler = nextConnect({
         res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
     }
 })
-
-handler.delete(async (req: NextApiRequest, res: NextApiResponse) => {
+handler.use(corsMiddleware)
+handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         let token: any = req.headers['authorization'];
         await connectMongo();

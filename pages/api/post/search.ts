@@ -4,34 +4,7 @@ import connectMongo from '../../../utils/dbConnect'
 import Post from '../../../models/post.model'
 import Token from 'models/token.model';
 import User from 'models/user.model';
-
-// export default async function handler(req, res) {
-
-//     if (req.method === 'GET') {
-//         try {
-//             await connectMongo();
-//             let searchQuery: any = {
-//                 $or: [
-//                     { title: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
-//                     { description: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
-//                 ],
-//             };
-//             const postList = await Post.find()
-//                 .where(searchQuery)
-//                 .populate({ path: 'created_user_id', model: 'User', select: 'name type _id' })
-//                 .sort({ created_at: -1 })
-//             let list = await postList.filter((e, index) => {
-//                 return ((e.status == 1 || e.created_user_id._id == req.query.id))
-//             })
-//             list.length == 0 ? res.status(200).json({ success: false, count: list.length, message: 'Not Found.' })
-//                 : res.status(200).json({ success: true, count: list.length, message: 'Your action is Successed.', data: list })
-//         } catch (error) {
-//             res.json({ error })
-//         }
-//     } else {
-//         res.status(422).send('req_method_not_supported');
-//     }
-// }
+import corsMiddleware from 'middleware/corsMiddleware';
 
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
@@ -41,7 +14,7 @@ const handler = nextConnect({
         res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
     }
 })
-
+handler.use(corsMiddleware)
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         let token: any = req.headers['authorization'];
@@ -69,7 +42,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
                             let list = postList.filter((e, index) => {
                                 return (data) ? (e.status == 1 || e.created_user_id._id == req.query.id) : (e.status == 1)
                             });
-                            res.status(200).json({ success: true, message: 'Your action is Successed.', query: list })
+                            res.status(200).json({ success: true, message: 'Your action is Successed.', data: list })
                         })
                 } else {
                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
@@ -83,7 +56,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
                 .populate({ path: 'postedBy', model: User, select: 'name type -_id' })
                 .sort({ created_at: -1 })
                 .then((postList) => {
-                    res.status(200).json({ success: true, message: 'Your action is Successed.', query: postList })
+                    res.status(200).json({ success: true, message: 'Your action is Successed.', data: postList })
                 })
         }
     } catch (e: any) {
