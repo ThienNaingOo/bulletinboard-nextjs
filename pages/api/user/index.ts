@@ -1,8 +1,8 @@
 import connectMongo from '../../../utils/dbConnect'
-import Post from '../../../models/post.model'
 import { NextApiRequest, NextApiResponse } from 'next';
-import nextConnect from 'next-connect';
+import nextConnect from "next-connect";
 import Token from 'models/token.model';
+import User from 'models/user.model';
 import corsMiddleware from 'middleware/corsMiddleware';
 
 const handler = nextConnect({
@@ -14,30 +14,28 @@ const handler = nextConnect({
     }
 })
 handler.use(corsMiddleware)
-handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
-
-    let request = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         let token: any = req.headers['authorization'];
         await connectMongo();
+        let limit = 10; let page: any = req.query.page ? req.query.page : 0;
+        let skip_count = req.query.page ? (page * limit) : 0;
         if (req.headers['authorization']) {
             let tk = token.split(" ")[1];
             const filter = { token: tk }
             Token.findOne(filter).then((data) => {
                 if (data) {
-                    if (request.hasOwnProperty('title') && request.hasOwnProperty('description')) {
-                        let post_data = {
-                            title: request.title,
-                            description: request.description,
-                            created_user_id: data.user_id
-                        }
-                        Post.create(post_data).then((post) => {
-                            res.status(200).json({ status: "success", message: 'Your action is Successed.', details: post })
-
-                        })
-                    } else {
-                        res.status(400).send({ status: 'error', message: 'Missing some parameters.' })
-                    }
+                    User.findOne({ _id: data.user_id }).then((userfindone) => {
+                        if (userfindone.type == 0) {
+                            User.find({}, {}, { skip: skip_count, limit: limit })
+                                .select('name email phone dob created_user_id')
+                                .populate({ path: 'created_user_id', model: User, select: 'name type -_id' })
+                                .sort({ created_at: -1 })
+                                .then((userList) => {
+                                    res.status(200).json({ success: true, data: userList, current_page: page })
+                                })
+                        } else res.status(401).send({ status: 'error', message: 'Unauthorized user Role' })
+                    })
                 } else {
                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
                 }
@@ -50,4 +48,4 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
     }
 })
 
-export default handler
+export default handler;

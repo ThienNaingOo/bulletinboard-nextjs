@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 dotenv.config({
   path: __dirname + "/.env.local",
 });
+
 const MONGODB_URI =
   typeof process.env.DB_URI === "string" ? process.env.DB_URI : "";
 let saltWorkFactor = parseInt(process.env.SALT_WORK_FACTOR || "10") as number;
@@ -29,9 +30,9 @@ const seedDB = async () => {
       password: hashedPassword,
       type: "0",
       phone: "09400033516",
-      dob: null,
+      dob: "",
       address: "122/124, 4th Quarter, Botahtaung Pagoda Road, Botahtaung Township, Yangon.",
-      profile: "",
+      profile: "/common/app.png",
       createdAt : new Date().toISOString(),
       updatedAt : new Date().toDateString()
     },
@@ -41,9 +42,9 @@ const seedDB = async () => {
       password: hashedPassword,
       type: "1",
       phone: "09400033316",
-      dob: null,
+      dob: "",
       address: "122/124, 4th Quarter, Botahtaung Pagoda Road, Botahtaung Township, Yangon.",
-      profile: "",
+      profile: "/common/app.png",
       createdAt : new Date().toISOString(),
       updatedAt : new Date().toDateString()
     },

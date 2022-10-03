@@ -1,7 +1,7 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import nextConnect from "next-connect";
 import connectMongo from '../../../utils/dbConnect'
 import Post from '../../../models/post.model'
+import { NextApiRequest, NextApiResponse } from 'next';
+import nextConnect from "next-connect";
 import Token from 'models/token.model';
 import User from 'models/user.model';
 import corsMiddleware from 'middleware/corsMiddleware';
@@ -17,24 +17,18 @@ const handler = nextConnect({
 handler.use(corsMiddleware)
 handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-        let token: any = req.headers['authorization'];
+        let token: any = '';
         await connectMongo();
         let limit = 10; let page: any = req.query.page ? req.query.page : 0;
-        let skip_count = req.query.page ? (page * limit) : 0;
-        let searchQuery: any = {
-            $or: [
-                { title: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
-                { description: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
-            ],
-        };
-
-        if (req.headers['authorization']) {
+        let skip_count = page ? (page * limit) : 0;
+        
+        if (token) {
             let tk = token.split(" ")[1];
             const filter = { token: tk }
             Token.findOne(filter).then((data) => {
+
                 if (data) {
                     Post.find({}, {}, { skip: skip_count, limit: limit })
-                        .where(searchQuery)
                         .select('title description status created_user_id')
                         .populate({ path: 'postedBy', model: User, select: 'name type -_id' })
                         .sort({ created_at: -1 })
@@ -42,7 +36,7 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
                             let list = postList.filter((e, index) => {
                                 return (data) ? (e.status == 1 || e.created_user_id._id == req.query.id) : (e.status == 1)
                             });
-                            res.status(200).json({ success: true, message: 'Your action is Successed.', data: list })
+                            res.status(200).json({ success: true, message: 'Your action is Successed.', data: list, current_page: page })
                         })
                 } else {
                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
@@ -50,13 +44,12 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
             })
         } else {
             Post.find({}, {}, { skip: skip_count, limit: limit })
-                .where(searchQuery)
                 .select('title description status created_user_id')
                 .where({ status: 1 })
                 .populate({ path: 'postedBy', model: User, select: 'name type -_id' })
                 .sort({ created_at: -1 })
                 .then((postList) => {
-                    res.status(200).json({ success: true, message: 'Your action is Successed.', data: postList })
+                    res.status(200).json({ success: true, message: 'Your action is Successed.', data: postList, current_page: page })
                 })
         }
     } catch (e: any) {

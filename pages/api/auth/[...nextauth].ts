@@ -17,7 +17,9 @@ export default NextAuth({
         let password: any = credential?.password
         let user;
         try {
-          user = await User.findOne({ email: credential?.email });
+          user = await User.findOne({ email: credential?.email }).select('+password');
+          console.log(user);
+          
         } catch (error) {
           return Promise.reject(new Error('Error in login process.'))
         }

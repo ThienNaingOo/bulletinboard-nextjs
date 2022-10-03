@@ -1,8 +1,7 @@
-export default async (req, res) => {
-    const { method } = req
+export default async function handler(req, res) {
+    // const { method } = req
 
-    // This will allow OPTIONS request
-    if (method === "OPTIONS") {
+    // if (method === "OPTIONS") {
         return res.status(200).send("ok")
-    }
+    // }
 }

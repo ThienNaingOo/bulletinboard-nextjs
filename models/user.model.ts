@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
             required: true,
             min: 6,
             max: 255,
-            select: true,
+            select: false,
         },
         profile: {
             type: String,
@@ -59,6 +59,11 @@ const userSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
         },
+        is_deleted: {
+            type: Boolean,
+            required: true,
+            default: false,
+        },
         deleted_user_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
@@ -78,6 +83,12 @@ const userSchema = new mongoose.Schema(
     }
 );
 
+userSchema.virtual('createdUser', {
+    justOne: true,
+    localField: 'created_user_id',
+    foreignField: '_id',
+    ref: 'User'
+})
 interface IUserDoc extends IUser, Document {}
 
 userSchema.method({});
