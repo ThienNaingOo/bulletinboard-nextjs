@@ -18,13 +18,11 @@ export default NextAuth({
         let user;
         try {
           user = await User.findOne({ email: credential?.email }).select('+password');
-          console.log(user);
-          
+          let result = await bcrypt.compare(password, user.password)
+          return (result ? Promise.resolve(user) : Promise.reject(new Error('Error in login process.')))
         } catch (error) {
           return Promise.reject(new Error('Error in login process.'))
         }
-        let result = await bcrypt.compare(password, user.password)
-        return (result ? Promise.resolve(user) : Promise.reject(new Error('Error in login process.')))
       }
     })],
   pages: {
@@ -39,13 +37,7 @@ export default NextAuth({
     },
     session: async ({ session, user, token }: any) => {
       if (session?.user) {
-        await connectMongo();
-        try {
-          const user = await User.findOne({ _id: token.sub })
-          session.user.id = user._id;
-          session.user.type = user.type;
-        } catch (error) {
-        }
+        session.user._id = token.sub;
       }
       return session;
     },

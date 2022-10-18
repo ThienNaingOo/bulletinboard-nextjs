@@ -21,9 +21,9 @@ function PostCreate({ data }) {
     const router = useRouter();
 
     useEffect(() => {
-        setUserID(session?.user.id);
+        setUserID(session?.user._id);
         router.beforePopState(({ as }) => {
-            if (as !== router.asPath) {                
+            if (as !== router.asPath) {
                 router.replace('/post/add?title=' + title + '&description=' + description)
                 return true;
             } else return false
@@ -43,7 +43,7 @@ function PostCreate({ data }) {
             title: title,
             description: description,
             created_user_id: userID ? userID : "",
-            created_at: Date.now()
+            created_at: new Date(Date.now())
         }
 
         fetch("http://localhost:3000/api/post/create", {
@@ -56,9 +56,15 @@ function PostCreate({ data }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                setOpen(true)
-                router.replace('/post')
+                if (json.status == 'success') {
+                    setOpen(true)
+                    router.replace('/post')
+                } else {
+                    alert(json.error.join('\n'))
+                }
+
             })
+            .catch((error) => alert(error))
     }
 
     const handleClose = () => {

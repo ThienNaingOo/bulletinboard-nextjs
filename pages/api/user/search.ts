@@ -20,6 +20,11 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         await connectMongo();
         let limit = 10; let page: any = req.query.page ? req.query.page : 0;
         let skip_count = req.query.page ? (page * limit) : 0;
+        let searchQuery: any = {
+            $or: [
+                { name: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
+            ],
+        };
         if (req.headers['authorization']) {
             let tk = token.split(" ")[1];
             const filter = { token: tk }
@@ -28,9 +33,9 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
                     User.findOne({ _id: data.user_id }).then((userfindone) => {
                         if (userfindone.type == 0) {
                             User.find({}, {}, { skip: skip_count, limit: limit })
-                                .select('name email phone dob address type profile +created_user_id')
+                                .where(searchQuery)
+                                .select('name email phone dob created_user_id')
                                 .populate({ path: 'created_user_id', model: User, select: 'name type -_id' })
-                                .where({ is_deleted: false })
                                 .sort({ created_at: -1 })
                                 .then((userList) => {
                                     res.status(200).json({ status: 'success', data: userList, current_page: page })

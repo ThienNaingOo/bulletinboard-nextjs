@@ -5,6 +5,7 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router'
 import Switch from '@mui/material/Switch';
+import { API_URI } from "utils/constants";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -25,8 +26,8 @@ function PostUpdateConfirm({ data }) {
     const [status, setStatus] = useState(data.status === 'true')
 
     useEffect(() => {
-        setUserID(session?.user.id);
-        
+        setUserID(session?.user._id);
+
         router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
                 router.replace('/post/update?title=' + title + '&description=' + description + '&status=' + status)
@@ -51,7 +52,7 @@ function PostUpdateConfirm({ data }) {
             status: status ? 1 : 0,
             updated_user_id: userID ? userID : "",
         }
-        fetch("http://localhost:3000/api/post/update", {
+        fetch(API_URI + "api/post/update", {
             method: "PUT",
             headers: {
                 Accept: "application/json",
@@ -61,8 +62,9 @@ function PostUpdateConfirm({ data }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                setOpen(true)
-                router.replace('/post')
+                json.status == 'success' ? (
+                    setOpen(true),
+                    router.replace('/post')) : null
             })
     }
 

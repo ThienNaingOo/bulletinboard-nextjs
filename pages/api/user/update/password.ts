@@ -54,7 +54,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                                         
                                                         res.status(200).json({ status: "success", message: 'Your password is successfully updated.'})
                                                     })
-                                                } else res.status(403).json({ success: false, message: 'password is not match' })
+                                                } else res.status(403).json({ status: 'success', message: 'password is not match' })
                                             })
                                         })
                                     } else res.status(428).send({ status: 'error', message: "Required some fields." })

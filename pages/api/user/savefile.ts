@@ -23,11 +23,11 @@ export default async function handler(req, res) {
                 let ext = path.extname(files.file.originalFilename)                
                 if (ext === '.jpg' || ext === '.png') {
                     const file = await saveFile(files.file);
-                    res.status(200).json({ success: true, message: 'Your action is Successed.', data: file })
-                } else res.status(422).json({ success: false, message: 'Invalid file type' })
+                    res.status(200).json({ status: "success", message: 'Your action is Successed.', data: file })
+                } else res.status(422).json({ status: "success", message: 'Invalid file type' })
             })
         } catch (error) {
             res.json({ error })
         } 
-    } else res.status(405).json({ success: false, message: 'Request Method is not allowed.' })
+    } else res.status(405).json({ status: "success", message: 'Request Method is not allowed.' })
 }

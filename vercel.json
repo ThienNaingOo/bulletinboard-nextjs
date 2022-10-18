@@ -1,6 +1,6 @@
 {
   "name": "bulletinboard-mongodb-api",
-  "version": 1,
+  "version": 2,
   "headers": [
     {
       "source": "/api/(.*)",
