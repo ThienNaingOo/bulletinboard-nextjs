@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router'
+import { API_URI } from "utils/constants";
+import { NextPage } from "next";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -12,9 +14,9 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function PostCreate({ data }) {
-    const title = data.title
-    const description = data.description
+const PostCreate: NextPage = ({ data }: any) => {
+    const title = data.title;
+    const description = data.description;
     const { data: session }: any = useSession();
     const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
@@ -46,7 +48,7 @@ function PostCreate({ data }) {
             created_at: new Date(Date.now())
         }
 
-        fetch("http://localhost:3000/api/post/create", {
+        fetch(API_URI + "api/post/create", {
             method: "POST",
             headers: {
                 Accept: "application/json",

@@ -23,7 +23,7 @@ function PostUpdateConfirm({ data }) {
     const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
-    const [status, setStatus] = useState(data.status === 'true')
+    const status = (data.status === 'true')
 
     useEffect(() => {
         setUserID(session?.user._id);

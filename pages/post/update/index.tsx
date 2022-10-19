@@ -5,7 +5,6 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router'
 import connectMongo from '../../../utils/dbConnect'
-import mongoose from "mongoose";
 import Switch from '@mui/material/Switch';
 import Post from "models/post.model";
 
@@ -28,6 +27,8 @@ function PostEdit({ postData }) {
     const router = useRouter();
 
     useEffect(() => {
+        console.log(userID);
+        
         if (!postData.hasOwnProperty('_id')) {
             setTitle(postData.title);
             setDescription(postData.description);
@@ -57,28 +58,28 @@ function PostEdit({ postData }) {
         setStatus(true);
     }
 
-    const confirmEvent = async () => {
-        let body = {
-            post_id: postData._id,
-            title: title,
-            description: description,
-            status: status ? 1 : 0,
-            updated_user_id: userID ? userID : "",
-        }
-        fetch("http://localhost:3000/api/post/update", {
-            method: "PUT",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body)
-        })
-            .then((response) => response.json())
-            .then((json) => {
-                setOpen(true)
-                router.back()
-            })
-    }
+    // const confirmEvent = async () => {
+    //     let body = {
+    //         post_id: postData._id,
+    //         title: title,
+    //         description: description,
+    //         status: status ? 1 : 0,
+    //         updated_user_id: userID ? userID : "",
+    //     }
+    //     fetch("http://localhost:3000/api/post/update", {
+    //         method: "PUT",
+    //         headers: {
+    //             Accept: "application/json",
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(body)
+    //     })
+    //         .then((response) => response.json())
+    //         .then((json) => {
+    //             setOpen(true)
+    //             router.back()
+    //         })
+    // }
 
     const handleClose = () => {
         setOpen(false);

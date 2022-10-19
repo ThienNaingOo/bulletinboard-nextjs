@@ -5,12 +5,12 @@ import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import { format } from 'date-fns';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React from 'react';
 
 function UserDetail({ data }) {
     const router = useRouter();
     const lazyRoot = React.useRef(null);
-    const [createObjectURL, setCreateObjectURL] = useState(data.profile ? data.profile : "/common/profile.png");
+    const createObjectURL = data.profile ? data.profile : "/common/profile.png";
 
     return (
         <div>

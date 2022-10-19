@@ -15,19 +15,19 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 
 function UserCreateConfirm({data}) {
 
-    const [name, setname] = useState(data.name)
-    const [email, setemail] = useState(data.email)
-    const [password, setpassword] = useState(data.password)
-    const [type, settype] = useState(data.type)
-    const [phone, setphone] = useState(data.phone)
-    const [dob, setdob] = useState(data.dob)
-    const [address, setaddress] = useState(data.address)
+    const name= data.name
+    const email = data.email
+    const password = data.password
+    const type = data.type
+    const phone = data.phone
+    const dob = data.dob
+    const address = data.address
     const { data: session }: any = useSession();
     const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
-    const [image, setImage] = useState(data.file);
-    const [createObjectURL, setCreateObjectURL] = useState(data.createObjectURL);
+    const image = data.file;
+    const createObjectURL = data.createObjectURL;
     const lazyRoot = React.useRef(null);
 
     useEffect(() => {
@@ -45,10 +45,10 @@ function UserCreateConfirm({data}) {
         };
     }, [router])
 
-    const confirmUserCreate = (event) => {
-        event.preventDefault();
-        // setConfirm(true)
-    }
+    // const confirmUserCreate = (event) => {
+    //     event.preventDefault();
+    //     // setConfirm(true)
+    // }
 
     const cancleEvent = () => {
         router.back()

@@ -1,4 +1,4 @@
-import { object, string, ref, date } from "yup";
+import { object, string } from "yup";
 
 export const storePostSchema = object({
     title: string()

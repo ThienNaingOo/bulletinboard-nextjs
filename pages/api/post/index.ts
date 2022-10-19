@@ -29,13 +29,13 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
             Token.findOne(filter).then((data) => {
 
                 if (data) {
-                    let userID = data.user_id
-                    let filterQuery: any = {
-                        $or: [
-                            // { status: { $regex: ".*" + 1 + ".*", $options: "i" } },
-                            { created_user_id: data.user_id },
-                        ],
-                    };
+                    // let userID = data.user_id
+                    // let filterQuery: any = {
+                    //     $or: [
+                    //         // { status: { $regex: ".*" + 1 + ".*", $options: "i" } },
+                    //         { created_user_id: data.user_id },
+                    //     ],
+                    // };
                     Post.find({}, {}, { skip: skip_count, limit: limit })
                         .where({ status: 1 })
                         .select('title description status created_user_id')

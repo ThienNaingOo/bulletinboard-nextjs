@@ -3,7 +3,6 @@ import Post from '../../../models/post.model'
 import { NextApiRequest, NextApiResponse } from 'next';
 import nextConnect from "next-connect";
 import Token from 'models/token.model';
-import corsMiddleware from 'middleware/corsMiddleware';
 import * as csv from "fast-csv";
 import { format } from 'date-fns';
 import User from 'models/user.model';

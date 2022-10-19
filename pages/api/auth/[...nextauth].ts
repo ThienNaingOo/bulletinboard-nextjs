@@ -18,6 +18,8 @@ export default NextAuth({
         let user;
         try {
           user = await User.findOne({ email: credential?.email }).select('+password');
+          console.log(user);
+          
           let result = await bcrypt.compare(password, user.password)
           return (result ? Promise.resolve(user) : Promise.reject(new Error('Error in login process.')))
         } catch (error) {
