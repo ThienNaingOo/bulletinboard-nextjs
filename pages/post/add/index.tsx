@@ -12,15 +12,13 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function PostCreate({ data }) {
-    const [title, setTitle] = useState(data?.title)
-    const [description, setDescription] = useState(data?.description)
+function PostCreate({ data }: any) {
+    const [title, setTitle] = useState(data.title)
+    const [description, setDescription] = useState(data.description)
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        setTitle(data.title);
-        setDescription(data.description)
         router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
                 router.replace('/post')
