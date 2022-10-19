@@ -20,14 +20,11 @@ function PostUpdateConfirm({ data }) {
     const title = data.title
     const description = data.description
     const { data: session }: any = useSession();
-    const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const status = (data.status === 'true')
 
     useEffect(() => {
-        setUserID(session?.user._id);
-
         router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
                 router.replace('/post/update?title=' + title + '&description=' + description + '&status=' + status)
@@ -38,7 +35,7 @@ function PostUpdateConfirm({ data }) {
         return () => {
             router.beforePopState(() => true);
         };
-    }, [router])
+    }, [router, title, description, status])
 
     const cancleEvent = () => {
         router.back()
@@ -50,7 +47,7 @@ function PostUpdateConfirm({ data }) {
             title: title,
             description: description,
             status: status ? 1 : 0,
-            updated_user_id: userID ? userID : "",
+            updated_user_id: session?.user._id ? session?.user._id : "",
         }
         fetch(API_URI + "api/post/update", {
             method: "PUT",

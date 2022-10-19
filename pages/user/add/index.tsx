@@ -12,7 +12,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function UserCreate({ data }) {
+function UserCreate({ data }: any) {
 
     const [name, setname] = useState(data?.name)
     const [email, setemail] = useState(data?.email)
@@ -28,22 +28,22 @@ function UserCreate({ data }) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const [image, setImage] = useState(data?.createObjectURL);
-    const [filename, setfilename] = useState("No file Choosen.")
-    const [tempname, settempname] = useState()
+    const [filename, setfilename] = useState(data?.file ? data?.file : "No file Choosen.")
+    const tempname = data?.file
     const [createObjectURL, setCreateObjectURL] = useState(data?.createObjectURL);
 
     useEffect(() => {
-        setname(data?.name);
-        setemail(data?.email);
-        setpassword(data?.password);
-        setconfirmpwd(data?.password);
-        settype(data?.type);
-        setphone(data?.phone);
-        setdob(data?.dob);
-        setaddress(data?.address);
-        setfilename(data?.file);
-        settempname(data?.file)
-        setCreateObjectURL(data?.createObjectURL)
+        // setname(data?.name);
+        // setemail(data?.email);
+        // setpassword(data?.password);
+        // setconfirmpwd(data?.password);
+        // settype(data?.type);
+        // setphone(data?.phone);
+        // setdob(data?.dob);
+        // setaddress(data?.address);
+        // setfilename(data?.file);
+        // settempname(data?.file)
+        // setCreateObjectURL(data?.createObjectURL)
         // setUserID(session?.user.id);
         Router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
@@ -55,7 +55,7 @@ function UserCreate({ data }) {
 
     const confirmUserCreate = (event) => {
         event.preventDefault();
-        (password === confirmpwd)? fileSaveToTemp(): alert("password and confirmed password are not same.")
+        (password === confirmpwd) ? fileSaveToTemp() : alert("password and confirmed password are not same.")
     }
 
     const clearEvent = () => {
@@ -99,7 +99,7 @@ function UserCreate({ data }) {
     const uploadToClient = (event) => {
         if (event.target.files && event.target.files[0]) {
             const i = event.target.files[0];
-            setfilename(i.name)            
+            setfilename(i.name)
             setImage(i);
             setCreateObjectURL(URL.createObjectURL(i))
         }
@@ -111,18 +111,18 @@ function UserCreate({ data }) {
 
     const fileSaveToTemp = () => {
         if (tempname !== filename) {
-        let body = new FormData();
-        body.append("file", image);
-        fetch("http://localhost:3000/api/user/savefile", {
-            method: "PUT",
-            headers: {
-            },
-            body: body
-        })
-            .then((response) => response.json())
-            .then((json) => {
-                router.push({ pathname: '/user/add/confirm', query: { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: json.data.name, createObjectURL: json.data.path, address: address } })
+            let body = new FormData();
+            body.append("file", image);
+            fetch("http://localhost:3000/api/user/savefile", {
+                method: "PUT",
+                headers: {
+                },
+                body: body
             })
+                .then((response) => response.json())
+                .then((json) => {
+                    router.push({ pathname: '/user/add/confirm', query: { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: json.data.name, createObjectURL: json.data.path, address: address } })
+                })
         } else router.push({ pathname: '/user/add/confirm', query: { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: filename, createObjectURL: createObjectURL, address: address } })
     }
 

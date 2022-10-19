@@ -13,7 +13,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function UserUpdateConfirm({ data }) {
+function UserUpdateConfirm({ data }: any) {
     const updateUserId = data.id
     const name = data.name
     const email = data.email
@@ -23,7 +23,7 @@ function UserUpdateConfirm({ data }) {
     const dob = data.dob
     const address = data.address
     const { data: session }: any = useSession();
-    const [userID, setUserID] = useState("");
+    // const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const image = data.file;
@@ -31,7 +31,7 @@ function UserUpdateConfirm({ data }) {
     const lazyRoot = React.useRef(null);
 
     useEffect(() => {
-        setUserID(session?.user.id);
+        // setUserID(session?.user._id);
         router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
                 router.replace('/user/update?_id=' + updateUserId + '&name=' + name + '&email=' + email + '&type=' + type + '&oldimg=' + oldimg +
@@ -43,7 +43,7 @@ function UserUpdateConfirm({ data }) {
         return () => {
             router.beforePopState(() => true);
         };
-    }, [router])
+    }, [router, updateUserId, name, email, type, oldimg, phone, dob, address, image, createObjectURL])
 
     // const confirmUserCreate = (event) => {
     //     event.preventDefault();
@@ -67,7 +67,7 @@ function UserUpdateConfirm({ data }) {
         body.append("phone", phone);
         body.append("dob", dob);
         body.append("address", address);
-        body.append("created_user_id", userID);
+        body.append("created_user_id", session?.user._id);
 
         fetch("http://localhost:3000/api/user/update", {
             method: "POST",
@@ -95,7 +95,7 @@ function UserUpdateConfirm({ data }) {
                         <div className="row mb-3">
                             <h4 className='text-info mb-2'>Update User Confirmation</h4>
                         </div>
-                        <Image className="row mb-0" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
+                        <Image alt="profile image" className="row mb-0" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
                         <div className="row my-3">
                             <label className="col-md-3 col-form-label text-md-start">Name</label>
                             <label className="col-md-7 col-form-label text-md-start">{name}</label>

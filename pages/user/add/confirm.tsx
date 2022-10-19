@@ -13,9 +13,9 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function UserCreateConfirm({data}) {
+function UserCreateConfirm({ data }) {
 
-    const name= data.name
+    const name = data.name
     const email = data.email
     const password = data.password
     const type = data.type
@@ -23,7 +23,6 @@ function UserCreateConfirm({data}) {
     const dob = data.dob
     const address = data.address
     const { data: session }: any = useSession();
-    const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const image = data.file;
@@ -31,11 +30,10 @@ function UserCreateConfirm({data}) {
     const lazyRoot = React.useRef(null);
 
     useEffect(() => {
-        setUserID(session?.user.id);
         router.beforePopState(({ as }) => {
-            if (as !== router.asPath) {                
-                router.replace('/user/add?name=' + name + '&email=' + email+ '&password=' + password+ '&type=' + type
-                + '&phone=' + phone + '&dob=' + dob + '&address=' + address + '&file=' + image + '&createObjectURL=' + createObjectURL)
+            if (as !== router.asPath) {
+                router.replace('/user/add?name=' + name + '&email=' + email + '&password=' + password + '&type=' + type
+                    + '&phone=' + phone + '&dob=' + dob + '&address=' + address + '&file=' + image + '&createObjectURL=' + createObjectURL)
                 return true;
             } else return false
         });
@@ -43,7 +41,7 @@ function UserCreateConfirm({data}) {
         return () => {
             router.beforePopState(() => true);
         };
-    }, [router])
+    }, [router, name, password, phone, email, dob, address, type, createObjectURL, image])
 
     // const confirmUserCreate = (event) => {
     //     event.preventDefault();
@@ -65,7 +63,7 @@ function UserCreateConfirm({data}) {
         body.append("phone", phone);
         body.append("dob", dob);
         body.append("address", address);
-        body.append("created_user_id", userID);
+        body.append("created_user_id", session?.user._id);
 
         fetch("http://localhost:3000/api/user/create", {
             method: "POST",
@@ -93,7 +91,7 @@ function UserCreateConfirm({data}) {
                         <div className="row mb-3">
                             <h4 className='text-info mb-2'>Create User Confirmation</h4>
                         </div>
-                        <Image className="row mb-0" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
+                        <Image className="row mb-0" alt="Profile image" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
                         <div className="row my-3">
                             <label className="col-md-3 col-form-label text-md-start">Name</label>
                             <label className="col-md-7 col-form-label text-md-start">{name}</label>

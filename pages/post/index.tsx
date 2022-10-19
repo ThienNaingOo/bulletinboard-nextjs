@@ -1,5 +1,5 @@
 import Header from '../../components/Header'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { format } from 'date-fns';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -115,7 +115,7 @@ function Post({ posts }) {
     const [postRow, setpostRow] = useState(posts);
     const [alertopen, setAlertOpen] = React.useState(false);
     const [file, setFile] = useState("");
-    const [userID, setUserID] = useState("");
+    // const [userID, setUserID] = useState("");
     const [message, setmessage] = useState("successfully Added");
     const [errorAlert, setErrorAlert] = useState(false)
 
@@ -133,11 +133,9 @@ function Post({ posts }) {
     const [emptyRows, setemptyRows] = useState(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - postRow.length) : 0);
 
 
-    useEffect(() => {
-        console.log(posts);
-
-        setUserID(session?.user.id);
-    })
+    // useEffect(() => {
+    //     // setUserID(session?.user._id);
+    // }, [posts])
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -219,7 +217,7 @@ function Post({ posts }) {
     const handleAlertOk = () => {
         setAlertOpen(false);
         let body = new FormData();
-        body.append("user_id", userID);
+        body.append("user_id", session?.user._id);
         body.append("file", file);
         fetch(API_URI + "api/post/upload/csv", {
             method: "POST",
@@ -410,8 +408,6 @@ function Post({ posts }) {
 
 export const getServerSideProps = async (ctx) => {
     const session: any = await getSession(ctx)
-    console.log(session);
-
     if (!session) {
         return {
             redirect: {

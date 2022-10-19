@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
 import Header from 'components/Header';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router';
@@ -17,14 +17,9 @@ function PasswordChange() {
     const [password, setpassword] = useState("")
     const [confirmpwd, setconfirmpwd] = useState("")
     const { data: session }: any = useSession();
-    const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const [erropen, seterrOpen] = useState(false);
     const router = useRouter();
-
-    useEffect(() => {
-        setUserID(session?.user.id);
-    })
 
     const confirmPasswordChange = (event) => {
         event.preventDefault();
@@ -33,7 +28,7 @@ function PasswordChange() {
 
     const confirmEvent = async () => {
         let body = {
-            id: userID,
+            id: session?.user._id,
             oldpassword: oldpassword,
             newpassword: password
         }

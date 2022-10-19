@@ -1,4 +1,4 @@
-import { getSession, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import Header from 'components/Header';
 import React, { useEffect, useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
@@ -17,24 +17,19 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
-function PostEdit({ postData }) {
+function PostEdit({ postData }: any) {
     const [title, setTitle] = useState(postData.title)
     const [description, setDescription] = useState(postData.description);
     const [status, setStatus] = useState(postData.status == '0' ? false : true)
-    const { data: session }: any = useSession();
-    const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        console.log(userID);
-        
         if (!postData.hasOwnProperty('_id')) {
             setTitle(postData.title);
             setDescription(postData.description);
             setStatus(postData.status === 'true')
         }
-        setUserID(session?.user.id);
         router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
                 router.replace('/post')
@@ -45,7 +40,7 @@ function PostEdit({ postData }) {
         return () => {
             router.beforePopState(() => true);
         };
-    }, [router])
+    }, [router, postData])
 
     const confirmPostCreate = (event) => {
         event.preventDefault();
@@ -167,7 +162,7 @@ function PostEdit({ postData }) {
 
 export const getServerSideProps = async (context) => {
     const session: any = await getSession(context);
-    
+
     if (!session) {
         return {
             redirect: {
@@ -179,7 +174,7 @@ export const getServerSideProps = async (context) => {
         if (context.query.postId !== undefined) {
             try {
                 await connectMongo();
-                const postData: any = await Post.findOne({ _id: context.query.postId }).select('title description status created_user_id')                
+                const postData: any = await Post.findOne({ _id: context.query.postId }).select('title description status created_user_id')
                 if (session.user._id === postData.created_user_id + "") {
                     return {
                         props: {

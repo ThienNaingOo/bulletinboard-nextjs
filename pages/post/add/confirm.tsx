@@ -18,12 +18,12 @@ const PostCreate: NextPage = ({ data }: any) => {
     const title = data.title;
     const description = data.description;
     const { data: session }: any = useSession();
-    const [userID, setUserID] = useState("");
+    // const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        setUserID(session?.user._id);
+        // setUserID(session?.user._id);
         router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
                 router.replace('/post/add?title=' + title + '&description=' + description)
@@ -34,7 +34,7 @@ const PostCreate: NextPage = ({ data }: any) => {
         return () => {
             router.beforePopState(() => true);
         };
-    }, [router])
+    }, [router, description, title])
 
     const cancleEvent = () => {
         router.back()
@@ -44,7 +44,7 @@ const PostCreate: NextPage = ({ data }: any) => {
         let body = {
             title: title,
             description: description,
-            created_user_id: userID ? userID : "",
+            created_user_id: session?.user._id ? session?.user._id : "",
             created_at: new Date(Date.now())
         }
 

@@ -22,7 +22,7 @@ function UserDetail({ data }) {
                             <div className="card-header bg-info"><h4 className='text-white'>User Details</h4></div>
 
                             <div className="card-body">
-                            <Image className="row" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
+                            <Image className="row" alt="Profile image" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
                                 <div className="row mt-3">
                                     <label className="col-md-4 col-form-label text-md-start">Name</label>
                                     <label className="col-md-6 col-form-label text-md-start">{data.name}</label>
