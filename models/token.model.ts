@@ -36,6 +36,16 @@ const tokenSchema = new mongoose.Schema(
     }
 );
 
+// tokenSchema.virtual('user_data', {
+//     justOne: true,
+//     localField: 'user_id',
+//     foreignField: '_id',
+//     ref: 'User'
+// })
+
+// tokenSchema.set('toObject', { virtuals: true });
+// tokenSchema.set('toJSON', { virtuals: true });
+
 interface ITokenDoc extends IToken, Document { }
 
 tokenSchema.method({});

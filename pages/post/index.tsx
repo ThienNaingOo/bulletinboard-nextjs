@@ -25,6 +25,7 @@ import SearchBar from "material-ui-search-bar";
 import { Button, Box } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { Dialog, DialogActions, DialogTitle } from '@mui/material'
+import { API_URI } from 'utils/constants';
 
 interface TablePaginationActionsProps {
     count: number;
@@ -120,7 +121,6 @@ function Post({ posts }) {
 
     const csvLink = {
         header: ['title', 'description', 'posted_user', 'created_at'],
-        // headers: posts.length > 0 ? Object.keys(posts[0]) : "",
         data: posts.map((data, idx) => {
             return {
                 title: data.title, description: data.description, posted_user: data.created_user_id.name,
@@ -134,6 +134,8 @@ function Post({ posts }) {
 
 
     useEffect(() => {
+        console.log(posts);
+
         setUserID(session?.user.id);
     })
 
@@ -152,10 +154,10 @@ function Post({ posts }) {
     }
 
     const deleteAction = async (id: any) => {
-        const body = { post_id: id, user_id: session?.user.id }
+        const body = { post_id: id, user_id: session?.user._id }
 
-        fetch("http://localhost:3000/api/post/delete", {
-            method: "DELETE",
+        fetch(API_URI + "api/post/delete", {
+            method: "POST",
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
@@ -164,7 +166,7 @@ function Post({ posts }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                json.success ? (
+                json.status == 'success' ? (
                     setTimeout(() => {
                         router.reload()
                     }, 1000)
@@ -173,12 +175,12 @@ function Post({ posts }) {
     }
 
     const requestSearch = async (searchedVal: string) => {
-        await fetch("http://localhost:3000/api/post/search?id=" + session.user.id + "&key=" + searchedVal, {
+        await fetch(API_URI + "api/post/search?id=" + session.user._id + "&key=" + searchedVal, {
             method: "GET",
         })
             .then((response) => response.json())
             .then((json) => {
-                json.success ? (
+                json.status == 'success' ? (
                     setpostRow(json.data),
                     setemptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - json.data.length) : 0)
                 ) : setErrorAlert(true)
@@ -186,13 +188,13 @@ function Post({ posts }) {
     }
 
     const fetchPostList = async () => {
-        await fetch("http://localhost:3000/api/post/list?id=" + session.user.id, {
+        await fetch(API_URI + "api/post?id=" + session.user._id, {
             method: "GET",
         })
             .then((response) => response.json())
             .then((json) => {
                 setSearchValue("")
-                setpostRow(json.query)
+                setpostRow(json.data)
                 setemptyRows(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - json.query.length) : 0)
             })
     }
@@ -219,7 +221,7 @@ function Post({ posts }) {
         let body = new FormData();
         body.append("user_id", userID);
         body.append("file", file);
-        fetch("http://localhost:3000/api/post/upload/csv", {
+        fetch(API_URI + "api/post/upload/csv", {
             method: "POST",
             headers: {
             },
@@ -298,11 +300,11 @@ function Post({ posts }) {
                                             {data.title}
                                         </TableCell>
                                         <TableCell component="th" scope="row">{data.description}</TableCell>
-                                        <TableCell align="left">{data.created_user_id?.name}</TableCell>
+                                        <TableCell align="left">{data.postedBy?.name}</TableCell>
                                         <TableCell align="left">{format(new Date(data.created_at), 'MM/dd/yyyy')}</TableCell>
                                         <TableCell align="left">
                                             {
-                                                session?.user.id == data.created_user_id._id ?
+                                                session?.user._id == data.created_user_id ?
                                                     <button type="button" className="btn btn-info text-white m-0 search-btn" onClick={() => router.push({ pathname: "/post/update", query: { postId: data._id } })}>
                                                         Edit
                                                     </button>
@@ -311,7 +313,7 @@ function Post({ posts }) {
                                         </TableCell>
                                         <TableCell align="left">
                                             {
-                                                (session?.user.id == data.created_user_id._id && data.status !== '0') ?
+                                                (session?.user._id == data.created_user_id && data.status !== '0') ?
                                                     <button type="button" className="btn btn-danger text-white m-0 search-btn" onClick={() => deleteAction(data._id)}>
                                                         Delete
                                                     </button>
@@ -408,6 +410,8 @@ function Post({ posts }) {
 
 export const getServerSideProps = async (ctx) => {
     const session: any = await getSession(ctx)
+    console.log(session);
+
     if (!session) {
         return {
             redirect: {
@@ -416,12 +420,8 @@ export const getServerSideProps = async (ctx) => {
             }
         }
     } else {
-        // await connectMongo();
-        // const allpost = await Posts.find({ status: 1 })
-        // .populate({ path: 'created_user_id', model: 'User', select: 'name type _id' })
-        // .sort({ created_at: -1 })
         let data;
-        await fetch("http://localhost:3000/api/post/list?id=" + session.user.id, {
+        await fetch(API_URI + "api/post?id=" + session.user._id, {
             method: "GET",
         })
             .then((response) => response.json())
@@ -430,7 +430,7 @@ export const getServerSideProps = async (ctx) => {
             })
         return {
             props: {
-                posts: data.success ? data.query : []
+                posts: data.status == "success" ? data.data : []
             }
         }
     }

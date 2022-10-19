@@ -1,6 +1,5 @@
 import React from "react";
 import { getSession } from "next-auth/react";
-import Login from "./login";
 
 function Home(props: any) {
   return (

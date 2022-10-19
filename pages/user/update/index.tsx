@@ -17,9 +17,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function UserUpdate({ userData }) {
-    console.log(userData);
-    
+function UserUpdate({ userData }) {    
     const [name, setname] = useState(userData.name)
     const [email, setemail] = useState(userData.email)
     const [type, settype] = useState(userData.type)
@@ -116,7 +114,7 @@ function UserUpdate({ userData }) {
     }
 
     const fileSaveToTemp = () => {
-        console.log(userprofile, createObjectURL);
+        console.log(userID);
 
         if (userprofile !== createObjectURL) {
             let body = new FormData();

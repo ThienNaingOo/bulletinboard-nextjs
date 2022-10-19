@@ -73,7 +73,7 @@ export const getServerSideProps = async (ctx) => {
         }
     } else {
         await connectMongo();
-        const user = await Users.findOne({ _id: session?.user?.id })
+        const user = await Users.findOne({ _id: session?.user?._id })
         return {
             props: {
                 data: JSON.parse(JSON.stringify(user))

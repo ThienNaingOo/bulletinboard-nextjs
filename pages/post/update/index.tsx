@@ -5,8 +5,8 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router'
 import connectMongo from '../../../utils/dbConnect'
-import mongoose from "mongoose";
 import Switch from '@mui/material/Switch';
+import Post from "models/post.model";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -27,6 +27,8 @@ function PostEdit({ postData }) {
     const router = useRouter();
 
     useEffect(() => {
+        console.log(userID);
+        
         if (!postData.hasOwnProperty('_id')) {
             setTitle(postData.title);
             setDescription(postData.description);
@@ -48,9 +50,6 @@ function PostEdit({ postData }) {
     const confirmPostCreate = (event) => {
         event.preventDefault();
         router.push({ pathname: '/post/update/confirm', query: { title: title, description: description, post_id: postData._id, status: status } })
-        // console.log(title, description);
-        // setConfirm(true)
-        // confirmEvent()
     }
 
     const clearEvent = () => {
@@ -59,28 +58,28 @@ function PostEdit({ postData }) {
         setStatus(true);
     }
 
-    const confirmEvent = async () => {
-        let body = {
-            post_id: postData._id,
-            title: title,
-            description: description,
-            status: status ? 1 : 0,
-            updated_user_id: userID ? userID : "",
-        }
-        fetch("http://localhost:3000/api/post/update", {
-            method: "PUT",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body)
-        })
-            .then((response) => response.json())
-            .then((json) => {
-                setOpen(true)
-                router.back()
-            })
-    }
+    // const confirmEvent = async () => {
+    //     let body = {
+    //         post_id: postData._id,
+    //         title: title,
+    //         description: description,
+    //         status: status ? 1 : 0,
+    //         updated_user_id: userID ? userID : "",
+    //     }
+    //     fetch("http://localhost:3000/api/post/update", {
+    //         method: "PUT",
+    //         headers: {
+    //             Accept: "application/json",
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(body)
+    //     })
+    //         .then((response) => response.json())
+    //         .then((json) => {
+    //             setOpen(true)
+    //             router.back()
+    //         })
+    // }
 
     const handleClose = () => {
         setOpen(false);
@@ -168,6 +167,7 @@ function PostEdit({ postData }) {
 
 export const getServerSideProps = async (context) => {
     const session: any = await getSession(context);
+    
     if (!session) {
         return {
             redirect: {
@@ -179,8 +179,8 @@ export const getServerSideProps = async (context) => {
         if (context.query.postId !== undefined) {
             try {
                 await connectMongo();
-                const postData: any = await mongoose.model('Post').findOne({ _id: context.query.postId })
-                if (session.user.id === postData.created_user_id + "") {
+                const postData: any = await Post.findOne({ _id: context.query.postId }).select('title description status created_user_id')                
+                if (session.user._id === postData.created_user_id + "") {
                     return {
                         props: {
                             postData: JSON.parse(JSON.stringify(postData))

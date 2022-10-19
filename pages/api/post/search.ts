@@ -39,24 +39,52 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
                         .populate({ path: 'postedBy', model: User, select: 'name type -_id' })
                         .sort({ created_at: -1 })
                         .then((postList) => {
-                            let list = postList.filter((e, index) => {
-                                return (data) ? (e.status == 1 || e.created_user_id._id == req.query.id) : (e.status == 1)
-                            });
-                            res.status(200).json({ success: true, message: 'Your action is Successed.', data: list })
+                            const posts = postList.map(postls => {
+                                if (postls.created_user_id.equals(data.user_id)) {
+                                    return {
+                                        id: postls._id,
+                                        title: postls.title,
+                                        description: postls.description,
+                                        status: postls.status,
+                                        posted_by: postls.postedBy,
+                                        can_delete: true
+                                    }
+
+                                } else return {
+                                    id: postls._id,
+                                    title: postls.title,
+                                    description: postls.description,
+                                    status: postls.status,
+                                    posted_by: postls.postedBy,
+                                    can_delete: false
+                                }
+
+                            })
+                            res.status(200).json({ status: 'success', message: 'Your action is Successed.', data: posts, current_page: page })
                         })
                 } else {
                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
                 }
             })
-        } else {
-            Post.find({}, {}, { skip: skip_count, limit: limit })
-                .where(searchQuery)
-                .select('title description status created_user_id')
-                .where({ status: 1 })
+        } else if (req.query.id) {
+            let filterQuery: any = {
+                $and: [
+                    searchQuery,
+                    {
+                        $or: [
+                            { status: { $regex: ".*" + 1 + ".*", $options: "i" } },
+                            { created_user_id: req.query.id },
+                        ],
+                    }
+                ]
+            };
+            Post.find()
+                .where(filterQuery)
+                .select('title description status created_user_id created_at')
                 .populate({ path: 'postedBy', model: User, select: 'name type -_id' })
                 .sort({ created_at: -1 })
                 .then((postList) => {
-                    res.status(200).json({ success: true, message: 'Your action is Successed.', data: postList })
+                    res.status(200).json({ status: 'success', message: 'Your action is Successed.', data: postList })
                 })
         }
     } catch (e: any) {

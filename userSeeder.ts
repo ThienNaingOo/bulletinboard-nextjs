@@ -22,9 +22,11 @@ mongoose
 
 const seedDB = async () => {
   let salt = await bcrypt.genSalt(saltWorkFactor); // generate hash salt of ? rounds
-  let hashedPassword = await bcrypt.hash("123456", salt); // hash the password
+  let hashedPassword = await bcrypt.hash("A1234567", salt); // hash the password
+  const adminId = new mongoose.Types.ObjectId();
   const seedUser = [
     {
+      _id: adminId,
       name: "Admin",
       email: "admin@mail.com",
       password: hashedPassword,
@@ -33,21 +35,23 @@ const seedDB = async () => {
       dob: "",
       address: "122/124, 4th Quarter, Botahtaung Pagoda Road, Botahtaung Township, Yangon.",
       profile: "/common/app.png",
-      createdAt : new Date().toISOString(),
-      updatedAt : new Date().toDateString()
+      createdAt : new Date().toDateString(),
+      updatedAt : new Date().toDateString(),
+      created_user_id: adminId
     },
-    {
-      name: "Normal User",
-      email: "user@mail.com",
-      password: hashedPassword,
-      type: "1",
-      phone: "09400033316",
-      dob: "",
-      address: "122/124, 4th Quarter, Botahtaung Pagoda Road, Botahtaung Township, Yangon.",
-      profile: "/common/app.png",
-      createdAt : new Date().toISOString(),
-      updatedAt : new Date().toDateString()
-    },
+    // {
+    //   name: "Normal User",
+    //   email: "user@mail.com",
+    //   password: hashedPassword,
+    //   type: "1",
+    //   phone: "09400033316",
+    //   dob: "",
+    //   address: "122/124, 4th Quarter, Botahtaung Pagoda Road, Botahtaung Township, Yangon.",
+    //   profile: "/common/app.png",
+    //   createdAt : new Date().toDateString(),
+    //   updatedAt : new Date().toDateString(),
+    //   created_user_id: adminId
+    // },
   ];
   await User.insertMany(seedUser);
 };

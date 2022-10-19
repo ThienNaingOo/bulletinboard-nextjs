@@ -18,27 +18,27 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
     try {
         let token: any = req.headers['authorization'];
         await connectMongo();
+        let request = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
         if (req.headers['authorization']) {
             let tk = token.split(" ")[1];
             const filter = { token: tk }
             Token.findOne(filter).then((data) => {
                 if (data) {
-                    let request = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
                     if (request.hasOwnProperty('post_id')) {
                         const filter = { _id: request.post_id };
                         const update = { status: 0, deleted_user_id: data.user_id, deleted_at: Date.now() };
 
                         Post.findOne(filter).select('status created_user_id')
-                            .then((post) => {                                
+                            .then((post) => {
                                 if (post) {
                                     if (post.status == '0') {
-                                        res.status(200).json({ success: false, message: 'Your post is already deleted.' })
+                                        res.status(200).json({ status: 'success', message: 'Your post is already deleted.' })
                                     } else if (post.created_user_id.equals(data.user_id)) {
                                         Post.findOneAndUpdate(filter, update, {
                                             new: true,
                                             upsert: true
                                         }).then((data) => {
-                                            res.status(200).json({ success: true, message: 'Your post is Successfully deleted.' })
+                                            res.status(200).json({ status: 'success', message: 'Your post is Successfully deleted.' })
                                         })
                                     } else {
                                         res.status(401).send({ status: 'error', message: 'Unauthorized to delete this post.' })
@@ -52,6 +52,26 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
                 }
             })
+        } else if (request.user_id) {
+            const filter = { _id: request.post_id };
+            const update = { status: 0, deleted_user_id: request.user_id, deleted_at: Date.now() };
+            Post.findOne(filter).select('status created_user_id')
+                .then((post) => {
+                    if (post) {
+                        if (post.status == '0') {
+                            res.status(200).json({ status: 'success', message: 'Your post is already deleted.' })
+                        } else if (post.created_user_id.equals(request.user_id)) {
+                            Post.findOneAndUpdate(filter, update, {
+                                new: true,
+                                upsert: true
+                            }).then((data) => {
+                                res.status(200).json({ status: 'success', message: 'Your post is Successfully deleted.' })
+                            })
+                        } else {
+                            res.status(401).send({ status: 'error', message: 'Unauthorized to delete this post.' })
+                        }
+                    } else res.status(401).send({ status: 'error', message: 'Unauthorized' })
+                })
         } else {
             res.status(401).send({ status: 'error', message: 'Unauthorized' })
         }

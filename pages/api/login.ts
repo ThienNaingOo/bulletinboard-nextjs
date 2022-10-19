@@ -19,7 +19,7 @@ const handler = nextConnect({
 })
 handler.use(corsMiddleware)
 handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
-    let request = JSON.parse(req.body)
+    let request = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
     try {
         await connectMongo();
         let password: any = request.password
@@ -55,15 +55,19 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                 expired_at: addDays(new Date(Date.now()), 30),
                                 valid: true
                             }
-                            Token.findOne(filter).then((data) => {
+                            Token.findOne(filter)
+                            .populate({ path: 'user_id', model: User, select: 'name type -_id' })
+                            .then((data) => {
                                 if (data) {
                                     Token.findOneAndUpdate(filter, token_data, {
                                         new: true,
                                         upsert: true
-                                    }).then((data) => {
+                                    }).then((findData) => {                                        
                                         res.status(200).json({
                                             status: 'success',
-                                            type: userType,
+                                            name: user.name,
+                                            type: user.type,
+                                            profile: user.profile,
                                             token: token,
                                             expired_at: data.expired_at
                                         })
@@ -72,7 +76,9 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                     Token.create(token_data).then((data) => {
                                         res.status(200).json({
                                             status: 'success',
-                                            type: userType,
+                                            name: user.name,
+                                            type: user.type,
+                                            profile: user.profile,
                                             token: token,
                                             expired_at: data.expired_at
                                         })

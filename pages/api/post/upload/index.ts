@@ -40,7 +40,6 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                             await fs.readFile(files?.data_file?.filepath + "", 'utf8').then((data) => {
                                 Papa.parse(data, {
                                     step: function (row) {
-                                        console.log("Row:", row.data);
                                         if (row.data[0] !== 'title' && row.data[0] !== '') {
                                             let data = {
                                                 title: row.data[0],
@@ -54,7 +53,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                 });
                             }).catch((error) => console.log(error)
                             )
-                            res.status(200).json({ success: true, message: 'Added ' + counter + ' rows!' })
+                            res.status(200).json({ status: 'success', message: 'Added ' + counter + ' rows!' })
                         } else res.status(400).send({ status: 'error', message: 'Missing \'data_file\' parameters.' })
                     });
                 } else res.status(401).send({ status: 'error', message: 'Unauthorized' })
