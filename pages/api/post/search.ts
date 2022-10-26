@@ -22,10 +22,20 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         let limit = 10; let page: any = req.query.page ? req.query.page : 0;
         let skip_count = req.query.page ? (page * limit) : 0;
         let searchQuery: any = {
-            $or: [
-                { title: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
-                { description: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
-            ],
+            $and: [
+                {
+                    $or: [
+                        { title: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
+                        { description: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
+                    ]
+                },
+                {
+                    $or: [
+                        { status: { $regex: ".*" + 1 + ".*", $options: "i" } },
+                        { created_user_id: req.query.id },
+                    ]
+                }
+            ]
         };
 
         if (req.headers['authorization']) {

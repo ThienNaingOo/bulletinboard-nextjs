@@ -9,6 +9,7 @@ import connectMongo from '../../../utils/dbConnect'
 import { format } from 'date-fns';
 import User from "models/user.model";
 import Link from 'next/link';
+import { API_URI } from "utils/constants";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -24,14 +25,12 @@ function UserUpdate({ userData }: any) {
     const [phone, setphone] = useState(userData.phone)
     const [dob, setdob] = useState(format(new Date(userData.dob), 'yyyy-MM-dd'))
     const [address, setaddress] = useState(userData.address)
-    // const { data: session }: any = useSession();
-    // const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const lazyRoot = React.useRef(null);
     const [image, setImage] = useState("");
-    const [userprofile, setuserprofile] = useState(userData.profile ? userData.profile : "/common/app.png");
-    const [createObjectURL, setCreateObjectURL] = useState(userData.profile ? userData.profile : "/common/app.png");
+    const [userprofile, setuserprofile] = useState(userData.profile == '' ? userData.profile : "/common/profile.png");
+    const [createObjectURL, setCreateObjectURL] = useState(userData.profile);
     const [filename, setfilename] = useState(userData.profile)
     const [oldimg, setoldimg] = useState(userData.profile)
 
@@ -45,7 +44,7 @@ function UserUpdate({ userData }: any) {
             setdob(format(new Date(userData.dob), 'yyyy-MM-dd'))
             setaddress(userData.address)
             setfilename(userData.file)
-            setCreateObjectURL(userData.filepath)
+            setCreateObjectURL(userData.profile ? userData.profile : "/common/profile.png")
             setuserprofile(userData.filepath)
             setoldimg(userData.oldimg)
         }
@@ -85,7 +84,7 @@ function UserUpdate({ userData }: any) {
     //     body.append("updated_user_id", userID);
     //     body.append("is_profileupdate", is_update);
 
-    //     fetch("http://localhost:3000/api/user/update", {
+    //     fetch("api/user/update", {
     //         method: "POST",
     //         headers: {
     //         },
@@ -94,7 +93,7 @@ function UserUpdate({ userData }: any) {
     //         .then((response) => response.json())
     //         .then((json) => {
     //             setOpen(true)
-    //             router.replace('/user/list')
+    //             router.replace('/user')
     //         })
     // }
 
@@ -117,7 +116,7 @@ function UserUpdate({ userData }: any) {
         if (userprofile !== createObjectURL) {
             let body = new FormData();
             body.append("file", image);
-            fetch("http://localhost:3000/api/user/savefile", {
+            fetch(API_URI+"api/user/savefile", {
                 method: "PUT",
                 headers: {
                 },
@@ -180,8 +179,7 @@ function UserUpdate({ userData }: any) {
                     <div className="col-md-8">
                         <div className="row mb-3"><h4 className='text-info mb-2'>Update User</h4></div>
                         <form onSubmit={confirmUserUpdate}>
-                            <label>{createObjectURL}</label>
-                            <Image className="row" alt="profile image" lazyRoot={lazyRoot} src={'/common/app.png'} width="200" height="200" />
+                            <Image className="row" alt="profile image" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
                             <div className="row mb-3 mt-5">
                                 <label className="col-md-3 col-form-label text-md-start">Name</label>
                                 <input id="name" type="text" value={name} className="col-md-7 col-form-label text-md-start" name="name" required autoComplete="text"

@@ -1,5 +1,5 @@
 import Header from '../../components/Header';
-import connectMongo from './../../utils/dbConnect';
+import connectMongo from '../../utils/dbConnect';
 import Users from '../../models/user.model';
 import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
@@ -14,9 +14,10 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import { useRouter } from 'next/router';
 import SearchBar from "material-ui-search-bar";
 import Link from 'next/link';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
+import { API_URI } from 'utils/constants';
 
 interface TablePaginationActionsProps {
     count: number;
@@ -98,12 +99,15 @@ function UserList({ users }) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [userRow, setuserRow] = useState(users);
+    const { data: session }: any = useSession();
 
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
 
     useEffect(() => {
-    })
+        console.log(session?.user?._id);
+
+    }, [session])
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -124,9 +128,9 @@ function UserList({ users }) {
     }
 
     const deleteAction = (id) => {
-        const body = { user_id: id }
+        const body = { id: id, deleted_user_id: session?.user?._id }
 
-        fetch("http://localhost:3000/api/user/delete", {
+        fetch(API_URI + "api/user/delete", {
             method: "DELETE",
             headers: {
                 Accept: "application/json",
@@ -136,7 +140,7 @@ function UserList({ users }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                json.success ? (router.replace(router.asPath), setOpen(true)) : null
+                json.status == 'success' ? (router.reload(), setOpen(true)) : null
             })
     }
 
@@ -211,12 +215,15 @@ function UserList({ users }) {
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
                                         <TableCell component="th" scope="row">
-                                            {/* <div onClick={() => router.push({ pathname: , query: { userId: data._id } })}>
-                                                <a></a>
-                                            </div> */}
-                                            <Link href={'/user/detail?userId=' + data._id}>
-                                                <a style={{ textDecoration: "underline", color: "blue" }}>{data.name}</a>
-                                            </Link>
+                                            {session?.user?._id == data._id ?
+                                                <Link href="/user/profile">
+                                                    <a style={{ textDecoration: "underline", color: "blue" }}>{data.name}</a>
+                                                </Link>
+                                                :
+                                                <Link href={'/user/detail?userId=' + data._id}>
+                                                    <a style={{ textDecoration: "underline", color: "blue" }}>{data.name}</a>
+                                                </Link>
+                                            }
                                         </TableCell>
                                         <TableCell component="th" scope="row">{data.email}</TableCell>
                                         <TableCell component="th" scope="row">{data.created_user_id?.name}</TableCell>
@@ -224,11 +231,16 @@ function UserList({ users }) {
                                         <TableCell align="left">{data.dob ? format(new Date(data.dob), 'MM/dd/yyyy') : null}</TableCell>
                                         <TableCell align="left">{data.address}</TableCell>
                                         <TableCell align="left">{format(new Date(data.created_at), 'MM/dd/yyyy')}</TableCell>
-                                        <TableCell align="left">{format(new Date(data.created_at), 'MM/dd/yyyy')}</TableCell>
+                                        <TableCell align="left">{format(new Date(data.updated_at), 'MM/dd/yyyy')}</TableCell>
                                         <TableCell align="left">
-                                            <button type="button" className="btn btn-danger text-white m-2 search-btn" onClick={() => deleteAction(data._id)}>
-                                                Delete
-                                            </button>
+                                            {
+                                                session?.user?._id !== data._id ?
+                                                    <button type="button" className="btn btn-danger text-white m-2 search-btn" onClick={() => deleteAction(data._id)}>
+                                                        Delete
+                                                    </button>
+                                                    : null
+                                            }
+
                                         </TableCell>
                                     </TableRow>
                                 })}
@@ -267,7 +279,7 @@ function UserList({ users }) {
                     </Table></TableContainer>
             </div>
             <Snackbar open={open} autoHideDuration={6000}>
-                <Alert onClose={()=> setOpen(false)} severity="success" sx={{ width: '100%' }}>
+                <Alert onClose={() => setOpen(false)} severity="success" sx={{ width: '100%' }}>
                     This is a success message!
                 </Alert>
             </Snackbar>
@@ -285,13 +297,25 @@ export const getServerSideProps = async (ctx) => {
             }
         }
     } else {
-        await connectMongo();
-        const alluser = await Users.find().populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' }).sort({ created_at: -1 })
+        let data;
+        await fetch(API_URI + "api/user?id=" + session.user._id, {
+            method: "GET",
+        })
+            .then((response) => response.json())
+            .then((json) => {
+                data = json
+            })
         return {
             props: {
-                users: JSON.parse(JSON.stringify(alluser))
+                users: data.status == "success" ? data.data : []
             }
         }
+        // const alluser = await Users.find().populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' }).sort({ created_at: -1 })
+        // return {
+        //     props: {
+        //         users: JSON.parse(JSON.stringify(alluser))
+        //     }
+        // }
     }
 }
 

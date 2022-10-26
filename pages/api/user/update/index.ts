@@ -105,6 +105,54 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
                                 }
                             })
+                        } else if (fields.id){
+                            User.findOne({ _id: fields.id }).then((userfindone) => {
+                                if (userfindone.type == 0) {                                            
+                                    const updateFilter = { _id: fields.id }
+                                    User.findOne(updateFilter).then((userData) => {
+                                        if ((fields.old_profile && fields.old_profile !== null && fields.old_profile !== "") || !files.profile) {
+                                            const update = {
+                                                name: fields.name,
+                                                email: fields.email,
+                                                type: fields.type,
+                                                phone: fields.phone,
+                                                dob: fields.dob ? new Date(fields.dob) : '',
+                                                address: fields.address,
+                                                updated_user_id: fields.updated_user_id,
+                                                updatedAt: new Date().toDateString()
+                                            }
+                                            User.findOneAndUpdate(updateFilter, update, {
+                                                new: true,
+                                                upsert: true
+                                            }).then((data) => {
+                                                res.status(200).json({ status: "success", message: 'Your action is Successed.', data: data })
+                                            })
+                                        } else {
+                                            saveFile(files.profile, userData.profile).then((filereturn) => {
+                                                const update = {
+                                                    name: fields.name,
+                                                    email: fields.email,
+                                                    profile: filereturn.path,
+                                                    type: fields.type,
+                                                    phone: fields.phone,
+                                                    dob: fields.dob ? new Date(fields.dob) : '',
+                                                    address: fields.address,
+                                                    updated_user_id: fields.updated_user_id,
+                                                    updatedAt: new Date().toDateString()
+                                                }
+                                                User.findOneAndUpdate(updateFilter, update, {
+                                                    new: true,
+                                                    upsert: true
+                                                }).then((data) => {
+                                                    res.status(200).json({ status: "success", message: 'Your action is Successed.', data: data })
+                                                })
+                                            })
+
+                                        }
+
+                                    })
+                                } else res.status(401).send({ status: 'error', message: 'Unauthorized user Role' })
+                            })
                         } else {
                             res.status(401).send({ status: 'error', message: 'Unauthorized' })
                         }

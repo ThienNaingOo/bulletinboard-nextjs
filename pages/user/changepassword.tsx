@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router';
+import { API_URI } from "utils/constants";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -33,7 +34,7 @@ function PasswordChange() {
             newpassword: password
         }
 
-        fetch("http://localhost:3000/api/user/update/password", {
+        fetch( API_URI + "api/user/update/password", {
             method: "POST",
             headers: {
                 Accept: "application/json",

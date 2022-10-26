@@ -42,8 +42,6 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
         await connectMongo();
         const form = new IncomingForm();
         form.parse(req, async function (err, fields, files) {
-            console.log(fields);
-            
             await storeUserSchema.validate(fields, { abortEarly: false })
                 .catch((err) => {
                     res.status(400).send({ status: 'error', message: err.name, error: err.errors })
@@ -58,8 +56,6 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                 if (data) {
                                     User.findOne({ _id: data.user_id }).then((userfindone) => {
                                         if (userfindone.type == 0) {
-                                            console.log(fields);
-                                            
                                             saveFile(files.profile).then((profile) => {
                                                 const userData = {
                                                     name: fields.name,
@@ -84,6 +80,32 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                 } else {
                                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
                                 }
+                            })
+                        } else if (fields.id) {
+                            User.findOne({ _id: fields.id }).then((userfindone) => {
+                                if (userfindone.type == 0) {
+                                    saveFile(files.profile).then((profile) => {
+                                        const userData = {
+                                            name: fields.name,
+                                            email: fields.email,
+                                            password: hashedPassword,
+                                            profile: profile.path,
+                                            type: fields.type,
+                                            phone: fields.phone,
+                                            dob: fields.dob ? new Date(fields.dob) : '',
+                                            address: fields.address,
+                                            created_user_id: fields.id,
+                                            createdAt: new Date().toDateString(),
+                                            updatedAt: new Date().toDateString()
+                                        }
+                                        console.log(userData);
+                                        
+                                        User.create(userData).then((user) => {
+                                            res.status(200).json({ status: "success", message: 'Your action is Successed.', details: user })
+                                        })
+                                    })
+
+                                } else res.status(401).send({ status: 'error', message: 'Unauthorized user Role' })
                             })
                         } else {
                             res.status(401).send({ status: 'error', message: 'Unauthorized' })

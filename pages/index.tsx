@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { getSession } from "next-auth/react";
 
 function Home(props: any) {
+
   return (
     <></>
   )
@@ -10,17 +11,17 @@ function Home(props: any) {
 export const getServerSideProps = async (ctx) => {
   const session: any = await getSession(ctx)
   if (!session) {
-      return {
-          redirect: {
-              permanent: false,
-              destination: '/login'
-          }
+    return {
+      redirect: {
+        permanent: false,
+        destination: '/login'
       }
+    }
   } else return {
     redirect: {
       permanent: false,
       destination: '/post'
-  }
+    }
   }
 }
 

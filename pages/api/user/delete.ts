@@ -47,5 +47,28 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
         res.status(400).send({ status: 'error', message: e.message, error: e.name })
     }
 })
+handler.delete(async (req: NextApiRequest, res: NextApiResponse) => {
+    try {
+        await connectMongo();
+        let request = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+        if (request.id && request.deleted_user_id) {
+            User.findOne({ _id: request.id }).then((userfindone) => {
+                if (userfindone.type == 0) {
+                    const filter = { _id: request.id }; // deleted user ID
+                    const update = { is_deleted: true, deleted_user_id: request.deleted_user_id, deleted_at: Date.now() };
+                    User.findOneAndUpdate(filter, update, {
+                        new: true,
+                        upsert: true
+                    }).then((returnData) => {
+
+                        res.status(200).json({ status: "success", message: 'Successfully deleted.', data: returnData })
+                    })
+                } else res.status(401).send({ status: 'error', message: 'Unauthorized user Role.' })
+            })
+        } else res.status(400).send({ status: 'error', message: 'Missing some parameters.' })
+    } catch (e: any) {
+        res.status(400).send({ status: 'error', message: e.message, error: e.name })
+    }
+})
 
 export default handler

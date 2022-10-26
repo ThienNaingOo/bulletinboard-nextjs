@@ -41,6 +41,19 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
                 }
             })
+        } else if (req.query.id) {
+            User.findOne({ _id: req.query.id }).then((userfindone) => {
+                if (userfindone.type == 0) {
+                    User.find()
+                        .select('name email phone dob address type profile +created_user_id created_at updated_at')
+                        .populate({ path: 'created_user_id', model: User, select: 'name type _id' })
+                        .where({ is_deleted: false })
+                        .sort({ created_at: -1 })
+                        .then((userList) => {
+                            res.status(200).json({ status: 'success', data: userList, current_page: page })
+                        })
+                } else res.status(401).send({ status: 'error', message: 'Unauthorized user Role' })
+            })
         } else {
             res.status(401).send({ status: 'error', message: 'Unauthorized' })
         }

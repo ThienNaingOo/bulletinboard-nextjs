@@ -127,15 +127,10 @@ function Post({ posts }) {
                 created_at: format(new Date(data.created_at), 'MM/dd/yyyy'),
             }
         }),
-        filename: `post.csv`
+        filename: `BulletinBoard-Nextjs-post.csv`
     }
 
     const [emptyRows, setemptyRows] = useState(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - postRow.length) : 0);
-
-
-    // useEffect(() => {
-    //     // setUserID(session?.user._id);
-    // }, [posts])
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,

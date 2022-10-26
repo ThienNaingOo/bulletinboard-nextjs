@@ -5,6 +5,7 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { API_URI } from "utils/constants";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -69,7 +70,7 @@ function UserUpdateConfirm({ data }: any) {
         body.append("address", address);
         body.append("created_user_id", session?.user._id);
 
-        fetch("http://localhost:3000/api/user/update", {
+        fetch(API_URI + "api/user/update", {
             method: "POST",
             headers: {
             },
@@ -78,7 +79,7 @@ function UserUpdateConfirm({ data }: any) {
             .then((response) => response.json())
             .then((json) => {
                 setOpen(true)
-                router.replace('/user/list')
+                router.replace('/user')
             })
     }
 
