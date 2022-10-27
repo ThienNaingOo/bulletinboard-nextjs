@@ -51,3 +51,14 @@ export const updateProfileSchema = object({
         .required("Phone is required")
         .max(20, "Phone is too long (max is 20)"),
 });
+
+export const changePasswordSchema = object({
+    old_password: string()
+        .required("Old password is required"),
+    new_password: string()
+        .required("New password is required")
+        .matches(
+            /^.*(?=.{8,})(?=.*\d)((?=.*[A-Z]){1}).*$/,
+            "New password must be more than 8 characters long, must contain at least 1 uppercase and 1 numeric"
+        ),
+})

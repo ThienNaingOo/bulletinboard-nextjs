@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { getSession } from "next-auth/react";
 
 function Home(props: any) {

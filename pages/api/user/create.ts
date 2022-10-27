@@ -97,9 +97,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                             created_user_id: fields.id,
                                             createdAt: new Date().toDateString(),
                                             updatedAt: new Date().toDateString()
-                                        }
-                                        console.log(userData);
-                                        
+                                        }                                        
                                         User.create(userData).then((user) => {
                                             res.status(200).json({ status: "success", message: 'Your action is Successed.', details: user })
                                         })

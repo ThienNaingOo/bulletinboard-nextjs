@@ -80,9 +80,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                             Token.findOne(filter).then((data) => {
                                 if (data) {
                                     const updateFilter = { _id: data.user_id }
-                                    User.findOne(updateFilter).then((userData) => {
-                                        console.log(data);
-                                        
+                                    User.findOne(updateFilter).then((userData) => {                                        
                                         if ((fields.old_profile && fields.old_profile !== null && fields.old_profile !== "") || !files.profile) {
                                             const update = {
                                                 name: fields.name,

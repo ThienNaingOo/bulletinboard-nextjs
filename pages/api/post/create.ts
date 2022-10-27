@@ -26,9 +26,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                 res.status(400).send({ status: 'error', message: err.name, error: err.errors })
             })
             .then(async (valid) => {
-                if (valid) {
-                    console.log(request);
-                    
+                if (valid) {                    
                     if (req.headers['authorization']) {
                         let tk = token.split(" ")[1];
                         const filter = { token: tk }

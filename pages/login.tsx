@@ -18,9 +18,7 @@ export default function Login() {
             email: email,
             password: password,
             callbackUrl: "/post"
-        }).then((result: any) => {
-            console.log(result);
-            
+        }).then((result: any) => {            
             (result.error == null) ? router.replace('/post') : alert("Email or password is incorrect.")
         }).catch((error) => (alert("Email or password is incorrect."), console.log(error.error)
         )

@@ -31,29 +31,6 @@ function UserCreateConfirm({ data }) {
     const createObjectURL = user.file ? URL.createObjectURL(user.file) : "/common/profile.png"
     const lazyRoot = React.useRef(null);
 
-    // useEffect(() => {
-    //     console.log('eeeeeeeeeeeeeeeee', user);
-
-    //     // setCreateObjectURL()
-
-    // //     router.beforePopState(({ as }) => {
-    // //         if (as !== router.asPath) {
-    // //             router.replace('/user/add?name=' + name + '&email=' + email + '&password=' + password + '&type=' + type
-    // //                 + '&phone=' + phone + '&dob=' + dob + '&address=' + address + '&file=' + image + '&createObjectURL=' + createObjectURL)
-    // //             return true;
-    // //         } else return false
-    // //     });
-
-    // //     return () => {
-    // //         router.beforePopState(() => true);
-    // //     };
-    // }, [createObjectURL])
-
-    // const confirmUserCreate = (event) => {
-    //     event.preventDefault();
-    //     // setConfirm(true)
-    // }
-
     const cancleEvent = () => {
         router.back()
     }

@@ -1,11 +1,12 @@
 import { useSession } from "next-auth/react";
 import Header from 'components/Header';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { API_URI } from "utils/constants";
+import UserContext from "hooks/userContext";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -15,41 +16,21 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 });
 
 function UserUpdateConfirm({ data }: any) {
+    const { user, setUser }: any = useContext(UserContext)
     const updateUserId = data.id
-    const name = data.name
-    const email = data.email
-    const oldimg = data.oldimg
-    const type = data.type
-    const phone = data.phone
-    const dob = data.dob
-    const address = data.address
+    const name = user.name
+    const email = user.email
+    const oldimg = user.oldimg
+    const type = user.type
+    const phone = user.phone
+    const dob = user.dob
+    const address = user.address
     const { data: session }: any = useSession();
-    // const [userID, setUserID] = useState("");
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const image = data.file;
-    const createObjectURL = data.createObjectURL;
+    const createObjectURL = user.file ? URL.createObjectURL(user.file) : (user.oldimg ? user.oldimg : "/common/profile.png");
     const lazyRoot = React.useRef(null);
-
-    useEffect(() => {
-        // setUserID(session?.user._id);
-        router.beforePopState(({ as }) => {
-            if (as !== router.asPath) {
-                router.replace('/user/update?_id=' + updateUserId + '&name=' + name + '&email=' + email + '&type=' + type + '&oldimg=' + oldimg +
-                    '&phone=' + phone + '&dob=' + dob + '&address=' + address + '&file=' + image + '&filepath=' + createObjectURL + '&createObjectURL=' + createObjectURL)
-                return true;
-            } else return false
-        });
-
-        return () => {
-            router.beforePopState(() => true);
-        };
-    }, [router, updateUserId, name, email, type, oldimg, phone, dob, address, image, createObjectURL])
-
-    // const confirmUserCreate = (event) => {
-    //     event.preventDefault();
-    //     // setConfirm(true)
-    // }
 
     const cancleEvent = () => {
         router.back()
@@ -61,8 +42,8 @@ function UserUpdateConfirm({ data }: any) {
         body.append("name", name);
         body.append("email", email);
         body.append("is_profileupdate", (createObjectURL !== oldimg && createObjectURL !== '/common/profile.png') ? 'true' : 'false');
-        body.append("profile", oldimg);
-        body.append("file", createObjectURL);
+        body.append("old_profile", user.file ? "" : "true");
+        body.append("profile", user.file);
         body.append("filename", image);
         body.append("type", type);
         body.append("phone", phone);
@@ -78,9 +59,17 @@ function UserUpdateConfirm({ data }: any) {
         })
             .then((response) => response.json())
             .then((json) => {
-                setOpen(true)
-                router.replace('/user')
+                if (json.status == "success") {
+                    setOpen(true)
+                    router.replace('/user')
+                    setUser({ name: '', email: '', password: '', type: '', phone: '', dob: '', file: '', address: '', oldimg: '' })
+                } else {
+                    let error = json.error ? json.error : ''
+                    alert(json.message + '\n' + error.toString().replace(/,/g, "\n"))
+                }
             })
+            .catch((err) => console.log(err)
+            )
     }
 
     const handleClose = () => {
@@ -105,10 +94,6 @@ function UserUpdateConfirm({ data }: any) {
                             <label className="col-md-3 col-form-label text-md-start">Email</label>
                             <label className="col-md-7 col-form-label text-md-start">{email}</label>
                         </div>
-                        {/* <div className="row mb-3">
-                            <label className="col-md-3 col-form-label text-md-start">Password</label>
-                            <label className="col-md-7 col-form-label text-md-start">{password}</label>
-                        </div> */}
                         <div className="row mb-3">
                             <label className="col-md-3 col-form-label text-md-start">Type</label>
                             <label className="col-md-7 col-form-label text-md-start">{type == "0" ? "Admin" : "User"}</label>

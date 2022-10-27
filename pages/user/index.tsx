@@ -1,7 +1,5 @@
 import Header from '../../components/Header';
-import connectMongo from '../../utils/dbConnect';
-import Users from '../../models/user.model';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -103,11 +101,6 @@ function UserList({ users }) {
 
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
-
-    useEffect(() => {
-        console.log(session?.user?._id);
-
-    }, [session])
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,

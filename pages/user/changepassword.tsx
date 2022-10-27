@@ -24,7 +24,7 @@ function PasswordChange() {
 
     const confirmPasswordChange = (event) => {
         event.preventDefault();
-        (password === confirmpwd)? confirmEvent(): alert("password and confirmed password are not same.")
+        (password === confirmpwd) ? confirmEvent() : alert("password and confirmed password are not same.")
     }
 
     const confirmEvent = async () => {
@@ -34,7 +34,7 @@ function PasswordChange() {
             newpassword: password
         }
 
-        fetch( API_URI + "api/user/update/password", {
+        fetch(API_URI + "api/user/update/password", {
             method: "POST",
             headers: {
                 Accept: "application/json",
@@ -44,9 +44,13 @@ function PasswordChange() {
         })
             .then((response) => response.json())
             .then((json) => {
-                json.success ? (setOpen(true), router.replace("/")): seterrOpen(true)
+                if (json.status == 'success') { (setOpen(true), router.replace("/")) }
+                else {
+                    const error = json.error ? json.error : ''
+                    alert(json.message + '\n' + error.toString().replace(/,/g, "\n"))
+                }
 
-            }).catch((error)=> console.error(error))
+            }).catch((error) => console.error(error))
     }
 
     const handleClose = () => {

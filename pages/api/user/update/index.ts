@@ -55,7 +55,8 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                             Token.findOne(filter).then((data) => {
                                 if (data) {
                                     User.findOne({ _id: data.user_id }).then((userfindone) => {
-                                        if (userfindone.type == 0) {                                            
+                                        
+                                        if (userfindone.type == 0) {
                                             const updateFilter = { _id: fields.id }
                                             User.findOne(updateFilter).then((userData) => {
                                                 if ((fields.old_profile && fields.old_profile !== null && fields.old_profile !== "") || !files.profile) {
@@ -69,6 +70,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                                         updated_user_id: fields.updated_user_id,
                                                         updatedAt: new Date().toDateString()
                                                     }
+
                                                     User.findOneAndUpdate(updateFilter, update, {
                                                         new: true,
                                                         upsert: true
@@ -105,9 +107,9 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                     res.status(401).send({ status: 'error', message: 'Unauthorized' })
                                 }
                             })
-                        } else if (fields.id){
-                            User.findOne({ _id: fields.id }).then((userfindone) => {
-                                if (userfindone.type == 0) {                                            
+                        } else if (fields.id) {
+                            User.findOne({ _id: fields.created_user_id }).then((userfindone) => {
+                                if (userfindone.type == 0) {
                                     const updateFilter = { _id: fields.id }
                                     User.findOne(updateFilter).then((userData) => {
                                         if ((fields.old_profile && fields.old_profile !== null && fields.old_profile !== "") || !files.profile) {
