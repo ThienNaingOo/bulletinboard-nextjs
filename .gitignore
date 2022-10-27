@@ -10,7 +10,6 @@
 
 #public
 /public/.temp/
-/public/profile/
 
 # next.js
 /.next/
