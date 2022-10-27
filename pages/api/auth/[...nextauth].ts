@@ -17,10 +17,8 @@ export default NextAuth({
         let password: any = credential?.password
         let user;
         try {
-          user = await User.findOne({ email: credential?.email }).select('+password');
-          console.log(user);
-          
-          let result = await bcrypt.compare(password, user.password)
+          user = await User.findOne({ email: credential?.email }).select('+password');          
+          let result = await bcrypt.compare(password, user.password)          
           return (result ? Promise.resolve(user) : Promise.reject(new Error('Error in login process.')))
         } catch (error) {
           return Promise.reject(new Error('Error in login process.'))
@@ -38,8 +36,10 @@ export default NextAuth({
       return baseUrl;
     },
     session: async ({ session, user, token }: any) => {
+      user = await User.findOne({ _id: token.sub }).select('+type');
       if (session?.user) {
         session.user._id = token.sub;
+        session.user.type = user.type;
       }
       return session;
     },

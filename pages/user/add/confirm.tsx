@@ -1,10 +1,12 @@
 import { useSession } from "next-auth/react";
 import Header from 'components/Header';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { API_URI } from "utils/constants";
+import UserContext from "hooks/userContext";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -14,39 +16,20 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 });
 
 function UserCreateConfirm({ data }) {
-
-    const name = data.name
-    const email = data.email
-    const password = data.password
-    const type = data.type
-    const phone = data.phone
-    const dob = data.dob
-    const address = data.address
+    const { user, setUser }: any = useContext(UserContext)
+    const name = user.name
+    const email = user.email
+    const password = user.password
+    const type = user.type
+    const phone = user.phone
+    const dob = user.dob
+    const address = user.address
     const { data: session }: any = useSession();
     const [open, setOpen] = useState(false);
     const router = useRouter();
-    const image = data.file;
-    const createObjectURL = data.createObjectURL;
+    const image = user.file;
+    const createObjectURL = user.file ? URL.createObjectURL(user.file) : "/common/profile.png"
     const lazyRoot = React.useRef(null);
-
-    useEffect(() => {
-        router.beforePopState(({ as }) => {
-            if (as !== router.asPath) {
-                router.replace('/user/add?name=' + name + '&email=' + email + '&password=' + password + '&type=' + type
-                    + '&phone=' + phone + '&dob=' + dob + '&address=' + address + '&file=' + image + '&createObjectURL=' + createObjectURL)
-                return true;
-            } else return false
-        });
-
-        return () => {
-            router.beforePopState(() => true);
-        };
-    }, [router, name, password, phone, email, dob, address, type, createObjectURL, image])
-
-    // const confirmUserCreate = (event) => {
-    //     event.preventDefault();
-    //     // setConfirm(true)
-    // }
 
     const cancleEvent = () => {
         router.back()
@@ -54,27 +37,26 @@ function UserCreateConfirm({ data }) {
 
     const confirmEvent = async () => {
         let body = new FormData();
+        body.append("id", session?.user._id);
         body.append("name", name);
         body.append("email", email);
         body.append("password", password);
-        body.append("file", createObjectURL);
+        body.append("profile", user.file);
         body.append("filename", image);
-        body.append("type", type);
+        body.append("type", type.toString());
         body.append("phone", phone);
         body.append("dob", dob);
         body.append("address", address);
         body.append("created_user_id", session?.user._id);
 
-        fetch("http://localhost:3000/api/user/create", {
+        fetch(API_URI + "api/user/create", {
             method: "POST",
-            headers: {
-            },
             body: body
         })
             .then((response) => response.json())
             .then((json) => {
-                setOpen(true)
-                router.replace('/user/list')
+
+                json.status == 'success' ? (router.replace('/user'), setOpen(true), setUser({ name: '', email: '', password: '', type: '', phone: '', dob: '', file: '', address: '' })) : null
             })
     }
 
@@ -106,7 +88,7 @@ function UserCreateConfirm({ data }) {
                         </div>
                         <div className="row mb-3">
                             <label className="col-md-3 col-form-label text-md-start">Type</label>
-                            <label className="col-md-7 col-form-label text-md-start">{type == "0" ? "Admin" : "User"}</label>
+                            <label className="col-md-7 col-form-label text-md-start">{type.toString() == "0" ? "Admin" : "User"}</label>
                         </div>
                         <div className="row mb-3">
                             <label className="col-md-3 col-form-label text-md-start">Phone</label>
@@ -119,6 +101,10 @@ function UserCreateConfirm({ data }) {
                         <div className="row mb-3">
                             <label className="col-md-3 col-form-label text-md-start">Address</label>
                             <label className="col-md-7 col-form-label text-md-start">{address}</label>
+                        </div>
+                        <div className="row mb-3">
+                            <label className="col-md-3 col-form-label text-md-start">File</label>
+                            <label className="col-md-7 col-form-label text-md-start">{image.name}</label>
                         </div>
                         <div className="row mt-3">
                             <div className="col-md-10 text-md-start">

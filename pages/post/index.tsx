@@ -110,12 +110,10 @@ function Post({ posts }) {
     const [searchValue, setSearchValue] = useState('');
     const router = useRouter();
     const { data: session }: any = useSession();
-    // const [open, setOpen] = useState(false);
     const [success, setsuccess] = useState(false);
     const [postRow, setpostRow] = useState(posts);
     const [alertopen, setAlertOpen] = React.useState(false);
     const [file, setFile] = useState("");
-    // const [userID, setUserID] = useState("");
     const [message, setmessage] = useState("successfully Added");
     const [errorAlert, setErrorAlert] = useState(false)
 
@@ -123,19 +121,14 @@ function Post({ posts }) {
         header: ['title', 'description', 'posted_user', 'created_at'],
         data: posts.map((data, idx) => {
             return {
-                title: data.title, description: data.description, posted_user: data.created_user_id.name,
+                title: data.title, description: data.description, posted_user: data.postedBy?.name,
                 created_at: format(new Date(data.created_at), 'MM/dd/yyyy'),
             }
         }),
-        filename: `post.csv`
+        filename: `BulletinBoard-Nextjs-post.csv`
     }
 
     const [emptyRows, setemptyRows] = useState(page > 0 ? Math.max(0, (1 + page) * rowsPerPage - postRow.length) : 0);
-
-
-    // useEffect(() => {
-    //     // setUserID(session?.user._id);
-    // }, [posts])
 
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement> | null,
@@ -217,9 +210,9 @@ function Post({ posts }) {
     const handleAlertOk = () => {
         setAlertOpen(false);
         let body = new FormData();
-        body.append("user_id", session?.user._id);
-        body.append("file", file);
-        fetch(API_URI + "api/post/upload/csv", {
+        body.append("id", session?.user._id);
+        body.append("data_file", file);
+        fetch(API_URI + "api/post/upload", {
             method: "POST",
             headers: {
             },
@@ -227,7 +220,11 @@ function Post({ posts }) {
         })
             .then((response) => response.json())
             .then((json) => {
-                json.success ? (setsuccess(true), setmessage(json.message), router.replace(router.asPath)) : null
+                json.status == 'success' ? (
+                    setsuccess(true),
+                    setmessage(json.message),
+                    router.reload()
+                ) : null
             })
     }
 
@@ -357,11 +354,6 @@ function Post({ posts }) {
                     : <h1 className='text-warning align-self-center my-5'>There is no Post at this time.</h1>}
 
             </div>
-            {/* <Snackbar open={open} autoHideDuration={6000}>
-                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    successfully deleted
-                </Alert>
-            </Snackbar> */}
 
             <Dialog
                 open={alertopen}

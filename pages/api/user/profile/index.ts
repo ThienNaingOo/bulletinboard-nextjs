@@ -79,8 +79,8 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                             const filter = { token: tk }
                             Token.findOne(filter).then((data) => {
                                 if (data) {
-                                    const updateFilter = { _id: fields.id }
-                                    User.findOne(updateFilter).then((userData) => {
+                                    const updateFilter = { _id: data.user_id }
+                                    User.findOne(updateFilter).then((userData) => {                                        
                                         if ((fields.old_profile && fields.old_profile !== null && fields.old_profile !== "") || !files.profile) {
                                             const update = {
                                                 name: fields.name,
@@ -94,7 +94,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                             }
                                             User.findOneAndUpdate(updateFilter, update, {
                                                 new: true,
-                                                upsert: true
+                                                upsert: false
                                             }).then((data) => {
                                                 res.status(200).json({ status: 'success', message: 'Your action is Successed.', data: data })
                                             })
@@ -113,7 +113,7 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
                                                 }
                                                 User.findOneAndUpdate(updateFilter, update, {
                                                     new: true,
-                                                    upsert: true
+                                                    upsert: false
                                                 }).then((data) => {
                                                     res.status(200).json({ status: 'success', message: 'Your action is Successed.', data: data })
                                                 })

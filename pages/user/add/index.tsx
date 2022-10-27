@@ -1,9 +1,11 @@
 import { getSession } from "next-auth/react";
 import Header from 'components/Header';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Router, { useRouter } from 'next/router';
+import Image from 'next/image';
+import UserContext from "hooks/userContext";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -14,37 +16,23 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 
 function UserCreate({ data }: any) {
 
-    const [name, setname] = useState(data?.name)
-    const [email, setemail] = useState(data?.email)
-    const [password, setpassword] = useState(data?.password)
+    const { user, setUser }: any = useContext(UserContext)
+    const [name, setname] = useState(user.name)
+    const [email, setemail] = useState(user.email)
+    const [password, setpassword] = useState(user.password)
     const [confirmpwd, setconfirmpwd] = useState("")
-    const [type, settype] = useState(data?.type)
-    const [phone, setphone] = useState(data?.phone)
-    const [dob, setdob] = useState(data?.dob)
-    const [address, setaddress] = useState(data?.address)
-    // const [confirm, setConfirm] = useState(false)
-    // const { data: session }: any = useSession();
-    // const [userID, setUserID] = useState("");
+    const [type, settype] = useState(user.type + '')
+    const [phone, setphone] = useState(user.phone)
+    const [dob, setdob] = useState(user.dob)
+    const [address, setaddress] = useState(user.address)
     const [open, setOpen] = useState(false);
     const router = useRouter();
-    const [image, setImage] = useState(data?.createObjectURL);
-    const [filename, setfilename] = useState(data?.file ? data?.file : "No file Choosen.")
-    const tempname = data?.file
-    const [createObjectURL, setCreateObjectURL] = useState(data?.createObjectURL);
+    const [image, setImage] = useState(user.file);
+    const [filename, setfilename] = useState(user.file ? user.file.name : "No file Choosen.")
+    const [createObjectURL, setCreateObjectURL] = useState(user.file ? URL.createObjectURL(user.file) : "/common/profile.png");
+    const lazyRoot = React.useRef(null);
 
     useEffect(() => {
-        // setname(data?.name);
-        // setemail(data?.email);
-        // setpassword(data?.password);
-        // setconfirmpwd(data?.password);
-        // settype(data?.type);
-        // setphone(data?.phone);
-        // setdob(data?.dob);
-        // setaddress(data?.address);
-        // setfilename(data?.file);
-        // settempname(data?.file)
-        // setCreateObjectURL(data?.createObjectURL)
-        // setUserID(session?.user.id);
         Router.beforePopState(({ as }) => {
             if (as !== router.asPath) {
                 router.replace('/post')
@@ -71,31 +59,6 @@ function UserCreate({ data }: any) {
         setCreateObjectURL('');
     }
 
-    // const confirmEvent = async () => {
-    //     let body = new FormData();
-    //     body.append("name", name);
-    //     body.append("email", email);
-    //     body.append("password", password);
-    //     body.append("file", image);
-    //     body.append("type", type);
-    //     body.append("phone", phone);
-    //     body.append("dob", dob);
-    //     body.append("address", address);
-    //     body.append("created_user_id", userID);
-
-    //     fetch("http://localhost:3000/api/user/create", {
-    //         method: "POST",
-    //         headers: {
-    //         },
-    //         body: body
-    //     })
-    //         .then((response) => response.json())
-    //         .then((json) => {
-    //             setOpen(true)
-    //             router.back()
-    //         })
-    // }
-
     const uploadToClient = (event) => {
         if (event.target.files && event.target.files[0]) {
             const i = event.target.files[0];
@@ -110,20 +73,22 @@ function UserCreate({ data }: any) {
     }
 
     const fileSaveToTemp = () => {
-        if (tempname !== filename) {
-            let body = new FormData();
-            body.append("file", image);
-            fetch("http://localhost:3000/api/user/savefile", {
-                method: "PUT",
-                headers: {
-                },
-                body: body
-            })
-                .then((response) => response.json())
-                .then((json) => {
-                    router.push({ pathname: '/user/add/confirm', query: { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: json.data.name, createObjectURL: json.data.path, address: address } })
-                })
-        } else router.push({ pathname: '/user/add/confirm', query: { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: filename, createObjectURL: createObjectURL, address: address } })
+        // if (tempname !== filename) {
+        //     let body = new FormData();
+        //     body.append("file", image);
+        let usr = { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: image, address: address }
+        setUser(usr)
+        // fetch(API_URI + "api/user/savefile", {
+        //     method: "PUT",
+        //     headers: {
+        //     },
+        //     body: body
+        // })
+        //     .then((response) => response.json())
+        //     .then((json) => {
+        router.push({ pathname: '/user/add/confirm' })
+        //     })
+        // } else router.push({ pathname: '/user/add/confirm', query: { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: filename, createObjectURL: createObjectURL, address: address } })
     }
 
     return (
@@ -133,6 +98,8 @@ function UserCreate({ data }: any) {
                 <div className="row justify-content-center mt-5">
                     <div className="col-md-8">
                         <div className="row mb-3"><h4 className='text-info mb-2'>Create User</h4></div>
+                        <Image className="row mb-0" alt="Profile image" lazyRoot={lazyRoot} src={createObjectURL} width="200" height="200" />
+
                         <form onSubmit={confirmUserCreate}>
                             <div className="row mb-3">
                                 <label className="col-md-3 col-form-label text-md-start">Name</label>
