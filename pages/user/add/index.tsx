@@ -14,7 +14,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function UserCreate({ data }: any) {
+function UserCreate() {
 
     const { user, setUser }: any = useContext(UserContext)
     const [name, setname] = useState(user.name)
@@ -56,7 +56,8 @@ function UserCreate({ data }: any) {
         setdob('');
         setaddress('');
         setfilename('');
-        setCreateObjectURL('');
+        setCreateObjectURL("/common/profile.png");
+        setUser({ name: '', email: '', password: '', type: '', phone: '', dob: '', file: '', address: '', oldimg: '' })
     }
 
     const uploadToClient = (event) => {
@@ -73,22 +74,9 @@ function UserCreate({ data }: any) {
     }
 
     const fileSaveToTemp = () => {
-        // if (tempname !== filename) {
-        //     let body = new FormData();
-        //     body.append("file", image);
         let usr = { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: image, address: address }
         setUser(usr)
-        // fetch(API_URI + "api/user/savefile", {
-        //     method: "PUT",
-        //     headers: {
-        //     },
-        //     body: body
-        // })
-        //     .then((response) => response.json())
-        //     .then((json) => {
         router.push({ pathname: '/user/add/confirm' })
-        //     })
-        // } else router.push({ pathname: '/user/add/confirm', query: { name: name, email: email, password: password, type: type, phone: phone, dob: dob, file: filename, createObjectURL: createObjectURL, address: address } })
     }
 
     return (

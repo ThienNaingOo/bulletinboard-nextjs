@@ -303,12 +303,6 @@ export const getServerSideProps = async (ctx) => {
                 users: data.status == "success" ? data.data : []
             }
         }
-        // const alluser = await Users.find().populate({ path: 'created_user_id', model: 'User', select: 'name type -_id' }).sort({ created_at: -1 })
-        // return {
-        //     props: {
-        //         users: JSON.parse(JSON.stringify(alluser))
-        //     }
-        // }
     }
 }
 

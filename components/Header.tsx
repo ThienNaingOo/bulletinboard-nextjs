@@ -17,7 +17,7 @@ function Header() {
     useEffect(() => {})
 
     return (
-        <nav className="navbar navbar-expand-lg bg-info bg-gradient">
+        <nav className="navbar navbar-expand-lg bg-dark bg-gradient">
             <div className="container">
 
                 <div className="navbar-brand d-flex me-5 flex-row align-items-center text-white">
