@@ -87,27 +87,6 @@ export default function Login() {
                                             : null
                                     ) : null}
                                 </div>
-
-                                {/* <div className="form-group row">
-                                        <div className="col-md-11">
-                                            <div className="form-check">
-                                                <input className="form-check-input" type="checkbox" name="remember" id="remember" />
-
-                                                <label className="form-check-label" htmlFor="remember">
-                                                    Remember Me
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div> */}
-
-                                {/* <div className="form-group row">
-                                        <div className="col-md-11">
-                                            <a className="btn btn-link" href="">
-                                                Forgot Your Password?
-                                            </a>
-                                        </div>
-                                    </div> */}
-
                                 <div className="form-group  mb-0 mt-5">
                                     <div className="col-md-10 offset-md-3">
                                         <button type="submit" className="col btn btn-info text-white mx-4 search-btn" onClick={checkvalid}>

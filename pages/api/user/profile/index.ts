@@ -67,7 +67,12 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
         let token: any = req.headers['authorization'];
         await connectMongo();
         const form = new IncomingForm();
+        // console.log('req.body',req.body);
+        
         form.parse(req, async function (err, fields, files) {
+            // console.log('profile update',fields);
+            // console.log('update file', files.profile);
+            
             await updateProfileSchema.validate(fields, { abortEarly: false })
                 .catch((err) => {
                     res.status(400).send({ status: 'error', message: err.name, error: err.errors })
