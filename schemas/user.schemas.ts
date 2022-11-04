@@ -1,4 +1,4 @@
-import { object, string } from "yup";
+import { date, object, string } from "yup";
 
 export const storeUserSchema = object({
     name: string()
@@ -19,7 +19,9 @@ export const storeUserSchema = object({
         .max(20, "Phone is too long (max is 20)"),
     type: string()
         .equals(['0', '1'], "Type format is invalid"),
-    // dob: date()
+    dob: date()
+        .min(new Date(1753, 1, 1), "Date format is invalid")
+        .max(new Date(), "Date format is invalid (Future Date)")
 });
 
 export const updateUserSchema = object({
@@ -37,6 +39,9 @@ export const updateUserSchema = object({
         .max(20, "Phone is too long (max is 20)"),
     type: string()
         .equals(['0', '1'], "Type format is invalid"),
+    dob: date()
+        .min(new Date(1753, 1, 1), "Date format is invalid")
+        .max(new Date(), "Date format is invalid (Future Date)")
 });
 
 export const updateProfileSchema = object({

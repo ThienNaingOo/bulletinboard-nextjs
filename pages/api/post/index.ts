@@ -5,6 +5,7 @@ import nextConnect from "next-connect";
 import Token from 'models/token.model';
 import User from 'models/user.model';
 import corsMiddleware from 'middleware/corsMiddleware';
+import { format } from 'date-fns';
 
 const handler = nextConnect({
     onError: (err, req, res: NextApiResponse, next) => {
@@ -23,22 +24,27 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
         let skip_count = page ? (page * limit) : 0;
 
         if (token) {
-
             let tk = token.split(" ")[1];
             const filter = { token: tk }
+            let searchQuery: any;
+            if (req.query.key) {
+                searchQuery = {
+                    $and: [
+                        {
+                            $or: [
+                                { title: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
+                                { description: { $regex: ".*" + req.query.key + ".*", $options: "i" } },
+                            ]
+                        },
+                        { status: { $regex: ".*" + 1 + ".*", $options: "i" } }
+                    ]
+                };
+            } else searchQuery = { status: 1 }
             Token.findOne(filter).then((data) => {
-
                 if (data) {
-                    // let userID = data.user_id
-                    // let filterQuery: any = {
-                    //     $or: [
-                    //         // { status: { $regex: ".*" + 1 + ".*", $options: "i" } },
-                    //         { created_user_id: data.user_id },
-                    //     ],
-                    // };
                     Post.find({}, {}, { skip: skip_count, limit: limit })
-                        .where({ status: 1 })
-                        .select('title description status created_user_id')
+                        .where(searchQuery)
+                        .select('title description status created_user_id created_at')
                         .populate({ path: 'postedBy', model: User, select: 'name type -_id' })
                         .sort({ created_at: -1 })
                         .then((postList) => {
@@ -50,20 +56,19 @@ handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
                                         description: postls.description,
                                         status: postls.status,
                                         posted_by: postls.postedBy,
-                                        can_delete: true
+                                        posted_date: format(new Date(postls.created_at), 'MM/dd/yyyy'),
+                                        can_delete: true,
                                     }
-
                                 } else return {
                                     id: postls._id,
                                     title: postls.title,
                                     description: postls.description,
                                     status: postls.status,
                                     posted_by: postls.postedBy,
-                                    can_delete: false
+                                    posted_date: format(new Date(postls.created_at), 'MM/dd/yyyy'),
+                                    can_delete: false,
                                 }
-
                             })
-
                             res.status(200).json({ status: 'success', message: 'Your action is Successed.', data: posts, current_page: page })
                         })
                 } else {

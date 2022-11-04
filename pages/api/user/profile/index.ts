@@ -70,8 +70,8 @@ handler.post(async (req: NextApiRequest, res: NextApiResponse) => {
         // console.log('req.body',req.body);
         
         form.parse(req, async function (err, fields, files) {
-            // console.log('profile update',fields);
-            // console.log('update file', files.profile);
+            console.log('profile update',fields);
+            console.log('update file', files.profile);
             
             await updateProfileSchema.validate(fields, { abortEarly: false })
                 .catch((err) => {
